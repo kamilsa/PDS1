@@ -33,15 +33,15 @@ int main() {
     vert_list->insert(vert_list->end(), v5);
 
     vector<Edge *> *edge_list = new vector<Edge *>();
-//    edge_list->insert(edge_list->end(), new Edge(v0, v1, 1, 3));
-//    edge_list->insert(edge_list->end(), new Edge(v0, v2, 1, 5));
-//    edge_list->insert(edge_list->end(), new Edge(v0, v2, 3, 6));
-//    edge_list->insert(edge_list->end(), new Edge(v0, v1, 4, 5));
-//    edge_list->insert(edge_list->end(), new Edge(v1, v3, 4, 6));
-//    edge_list->insert(edge_list->end(), new Edge(v1, v4, 5, 8));
-//    edge_list->insert(edge_list->end(), new Edge(v2, v5, 6, 8));
-//    edge_list->insert(edge_list->end(), new Edge(v2, v4, 7, 9));
-//    edge_list->insert(edge_list->end(), new Edge(v4, v0, 8, 9));
+    edge_list->insert(edge_list->end(), new Edge(v0, v1, 1, 3));
+    edge_list->insert(edge_list->end(), new Edge(v0, v2, 1, 5));
+    edge_list->insert(edge_list->end(), new Edge(v0, v2, 3, 6));
+    edge_list->insert(edge_list->end(), new Edge(v0, v1, 4, 5));
+    edge_list->insert(edge_list->end(), new Edge(v1, v3, 4, 6));
+    edge_list->insert(edge_list->end(), new Edge(v1, v4, 5, 8));
+    edge_list->insert(edge_list->end(), new Edge(v2, v5, 6, 8));
+    edge_list->insert(edge_list->end(), new Edge(v2, v4, 7, 9));
+    edge_list->insert(edge_list->end(), new Edge(v4, v0, 8, 9));
 
 //    edge_list->insert(edge_list->end(), new Edge(v0, v1, 1, 1));
 //    edge_list->insert(edge_list->end(), new Edge(v1, v4, 3, 3));
