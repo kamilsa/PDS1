@@ -1,0 +1,37 @@
+No("0") = {<"1",4,5,1>, <"2",3,6,3>, <"2",1,4,4>, <"1",1,3,2>} // mistake
+No("1") = {<"4",5,8,3>, <"3",4,6,2>}
+No("2") = {<"4",7,9,2>, <"5",6,8,2>}
+No("3") = {}
+No("4") = {<"0",8,9,1>}
+
+iter 0: A(u)=inf, pos(u)=1, for any u in V, push <"0","0",0> onto S
+iter 1:
+    u = "0", v = "0", t^0 = 0 <- top(S), pop(S) # S = {}
+    A("0") = t^0 = 0
+    P("0") = "0"
+    if pos("0") <= |No("0") == 4|: # pos("0") = 1 => condition holds
+        v = "0"; vp = "1", tv = 4, t^vp = 5, wp = 1
+        whileiter(pos("0") <= |No("0") == 4| and A("0") <= 4): # condition holds
+            push(<"0","1",5> onto S) # S = {<"0","1",5>}
+            pos("0")++ # pos("0") = 2
+            v = "0", vp = "2", tv = 3, t^vp = 6, wp = 3
+        whileiter(pos("0") <= |No("0" == 4)| and A("0") <= 4): # condition holds
+            push(<"0","2",6> onto S) # S = {<"0","2",6>, <"0","1",5>}
+            pos("0")++ # pos("0") = 3
+            v = "0", vp = "2", tv = 1, t^vp = 4, wp = 4
+        whileiter(pos("0") <= |No("0" == 4)| and A("0") <= 4):
+            push(<"0","2",4> onto S) # S = {<"0","2",4>, <"0","2",6>, <"0","1",5>}
+            pos("0")++ # pos("0") = 4
+            v = "0", vp = "1", tv = 1, t^vp = 3
+        whileiter(pos("0") <= |No("0" == 4)| and A("0") <= 4):
+            push(<"0", "1", 3> onto S) # S = {<"0", "1", 3>, <"0","2",4>, <"0","2",6>, <"0","1",5>}
+            pos("0")++ # pos("0") = 5
+            v = null, vp = null, tv = null, t^vp = null
+iter 2:
+    u = "0", v = "1", t^v = 3 <- top(S), pop(S) # S = {<"0","2",4>, <"0","2",6>, <"0","1",5>}
+    if t^v == 3 < (A("1") == inf)): # condition holds
+        A("1") = 3
+        P("1") = "0"
+        if (pos("1") == 1 <= |No("1") == 2|): # condition holds
+            v = "1", vp = "4", tv = 5, t^vp = 8, wp = 3
+            whileiter(pos("1"))
