@@ -1,5 +1,6 @@
 #include <iostream>
 #include "my_graphs/tgr.h"
+#include "my_graphs/sgr.h"
 #include <vector>
 #include <map>
 #include <stack>
@@ -18,7 +19,7 @@ void mst_a2(map<string, vector<TempEdge *> *> *sal, vector<TempVertex *> vert_li
 void static_graph_test();
 
 int main() {
-
+    static_graph_test();
     TempVertex *v0 = new TempVertex("0");
     TempVertex *v1 = new TempVertex("1");
     TempVertex *v2 = new TempVertex("2");
@@ -66,7 +67,16 @@ int main() {
 
 
 void static_graph_test(){
+    StaticGraph* gr = new StaticGraph();
+    StaticVertex* v1 = new StaticVertex("1");
+    StaticVertex* v2 = new StaticVertex("2");
+    StaticVertex* v3 = new StaticVertex("3");
+    gr->add_edge(v1, v2, 1);
+    gr->add_edge(v1, v3, 2);
+    gr->add_edge(v3, v2, 3);
 
+    gr->toString();
+    delete gr;
 }
 
 void mst_a1(vector<TempEdge *> *G, vector<TempVertex *> &vert_list, TempVertex *root, long low_bound, long up_bound) {

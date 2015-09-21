@@ -7,9 +7,9 @@
 
 #include <iosfwd>
 #include <string>
-#include <altivec.h>
 #include <map>
 #include <vector>
+
 
 class StaticVertex{
 private:
@@ -28,7 +28,7 @@ private:
     StaticVertex* to;
     int weight;
 public:
-
+    StaticEdge(StaticVertex* from, StaticVertex* to, int weight);
     int getWeight();
 
     void setWeight(int weight);
@@ -44,10 +44,12 @@ public:
 
 class StaticGraph{
 private:
-    std::map<std::string,std::vector<StaticVertex>> adj_list;
+    std::map<std::string,std::vector<StaticEdge*>*>* adj_list;
 public:
     StaticGraph();
+    ~StaticGraph();
     void add_edge(StaticVertex* from, StaticVertex* to, int weight);
     void remove_edge(StaticVertex* from, StaticVertex* to);
+    void toString();
 };
 #endif //PDS1_SGR_H
