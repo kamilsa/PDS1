@@ -12,21 +12,21 @@
 /**
  * Class vertex -- represents vertex in temporal graph
  */
-class Vertex {
+class TempVertex {
 private:
     std::string name;
-    Vertex *P;
+    TempVertex *P;
     long A;
 public:
-    Vertex(std::string name);
+    TempVertex(std::string name);
 
     std::string getName();
 
     void setName(std::string);
 
-    Vertex *getP();
+    TempVertex *getP();
 
-    void setP(Vertex *P);
+    void setP(TempVertex *P);
 
     long getA();
 
@@ -34,26 +34,26 @@ public:
 };
 
 
-class Edge {
+class TempEdge {
 private:
-    Vertex *source;
-    Vertex *destination;
+    TempVertex *source;
+    TempVertex *destination;
     long startTime;
     long arrTime;
 public:
-    Edge(Vertex *source, Vertex *destination, long startTime, long arrTime);
+    TempEdge(TempVertex *source, TempVertex *destination, long startTime, long arrTime);
 
-    ~Edge();
+    ~TempEdge();
 
-    Vertex *getSource() const;
+    TempVertex *getSource() const;
 
-    void setSource(Vertex *source);
+    void setSource(TempVertex *source);
 
-    Vertex *getDestination() const {
+    TempVertex *getDestination() const {
         return destination;
     }
 
-    void setDestination(Vertex *destination);
+    void setDestination(TempVertex *destination);
 
     long getStartTime() const;
 

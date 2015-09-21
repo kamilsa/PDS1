@@ -1,30 +1,32 @@
 #include <iostream>
-#include "temp_graphs/tgr.h"
+#include "my_graphs/tgr.h"
 #include <vector>
 #include <map>
 #include <stack>
 
 using namespace std;
 
-void mst_a1(vector<Edge *> *G, vector<Vertex *> &vert_list, Vertex *root, long low_bound, long up_bound);
+void mst_a1(vector<TempEdge *> *G, vector<TempVertex *> &vert_list, TempVertex *root, long low_bound, long up_bound);
 
-void sort_edges(vector<Edge *> &edge_list); // sorts edges according to their start time
-void swap(vector<Edge *> &v, int i, int j);
+void sort_edges(vector<TempEdge *> &edge_list); // sorts edges according to their start time
+void swap(vector<TempEdge *> &v, int i, int j);
 
-map<string, vector<Edge *> *> *create_sal(vector<Vertex *> &vert_list,
-                                          vector<Edge *> &edge_list); // creates sorted adjacency list
-void mst_a2(map<string, vector<Edge *> *> *sal, vector<Vertex *> vert_list, Vertex* root, long low_bound, long up_bound);
+map<string, vector<TempEdge *> *> *create_sal(vector<TempVertex *> &vert_list,
+                                          vector<TempEdge *> &edge_list); // creates sorted adjacency list
+void mst_a2(map<string, vector<TempEdge *> *> *sal, vector<TempVertex *> vert_list, TempVertex* root, long low_bound, long up_bound);
+
+void static_graph_test();
 
 int main() {
 
-    Vertex *v0 = new Vertex("0");
-    Vertex *v1 = new Vertex("1");
-    Vertex *v2 = new Vertex("2");
-    Vertex *v3 = new Vertex("3");
-    Vertex *v4 = new Vertex("4");
-    Vertex *v5 = new Vertex("5");
+    TempVertex *v0 = new TempVertex("0");
+    TempVertex *v1 = new TempVertex("1");
+    TempVertex *v2 = new TempVertex("2");
+    TempVertex *v3 = new TempVertex("3");
+    TempVertex *v4 = new TempVertex("4");
+    TempVertex *v5 = new TempVertex("5");
 
-    vector<Vertex *> *vert_list = new vector<Vertex *>();
+    vector<TempVertex *> *vert_list = new vector<TempVertex *>();
     vert_list->insert(vert_list->end(), v0);
     vert_list->insert(vert_list->end(), v1);
     vert_list->insert(vert_list->end(), v2);
@@ -32,16 +34,16 @@ int main() {
     vert_list->insert(vert_list->end(), v4);
     vert_list->insert(vert_list->end(), v5);
 
-    vector<Edge *> *edge_list = new vector<Edge *>();
-    edge_list->insert(edge_list->end(), new Edge(v0, v1, 1, 3));
-    edge_list->insert(edge_list->end(), new Edge(v0, v2, 1, 5));
-    edge_list->insert(edge_list->end(), new Edge(v0, v2, 3, 6));
-    edge_list->insert(edge_list->end(), new Edge(v0, v1, 4, 5));
-    edge_list->insert(edge_list->end(), new Edge(v1, v3, 4, 6));
-    edge_list->insert(edge_list->end(), new Edge(v1, v4, 5, 8));
-    edge_list->insert(edge_list->end(), new Edge(v2, v5, 6, 8));
-    edge_list->insert(edge_list->end(), new Edge(v2, v4, 7, 9));
-    edge_list->insert(edge_list->end(), new Edge(v4, v0, 8, 9));
+    vector<TempEdge *> *edge_list = new vector<TempEdge *>();
+    edge_list->insert(edge_list->end(), new TempEdge(v0, v1, 1, 3));
+    edge_list->insert(edge_list->end(), new TempEdge(v0, v2, 1, 5));
+    edge_list->insert(edge_list->end(), new TempEdge(v0, v2, 3, 6));
+    edge_list->insert(edge_list->end(), new TempEdge(v0, v1, 4, 5));
+    edge_list->insert(edge_list->end(), new TempEdge(v1, v3, 4, 6));
+    edge_list->insert(edge_list->end(), new TempEdge(v1, v4, 5, 8));
+    edge_list->insert(edge_list->end(), new TempEdge(v2, v5, 6, 8));
+    edge_list->insert(edge_list->end(), new TempEdge(v2, v4, 7, 9));
+    edge_list->insert(edge_list->end(), new TempEdge(v4, v0, 8, 9));
 
 //    edge_list->insert(edge_list->end(), new Edge(v0, v1, 1, 1));
 //    edge_list->insert(edge_list->end(), new Edge(v1, v4, 3, 3));
@@ -51,10 +53,10 @@ int main() {
 //    edge_list->insert(edge_list->end(), new Edge(v2, v0, 2, 2));
 
 //    mst_a1(edge_list, *vert_list, v0, 0, LONG_MAX);
-    map<string,vector<Edge*>*>* sal = create_sal(*vert_list, *edge_list);
+    map<string,vector<TempEdge*>*>* sal = create_sal(*vert_list, *edge_list);
     mst_a2(sal, *vert_list, v0, 0, LONG_MAX);
-    for (Vertex *v : *vert_list) {
-        if (v != v0) cout << "P(" << v->getName() << ") = " << v->getP()->getName() << endl;
+    for (TempVertex *v : *vert_list) {
+        if (v != v0) cout << "P(" << v->getName() << ") = " << v->getP()->getName()  << " A(" << v->getName() << ") = " << v->getA() << endl;
     }
 
     delete edge_list;
@@ -62,7 +64,12 @@ int main() {
     return 0;
 }
 
-void mst_a1(vector<Edge *> *G, vector<Vertex *> &vert_list, Vertex *root, long low_bound, long up_bound) {
+
+void static_graph_test(){
+
+}
+
+void mst_a1(vector<TempEdge *> *G, vector<TempVertex *> &vert_list, TempVertex *root, long low_bound, long up_bound) {
     for (int i = 0; i < vert_list.size(); i++) {
         if (vert_list[i] != root) {
             vert_list[i]->setA(LONG_MAX);
@@ -75,9 +82,9 @@ void mst_a1(vector<Edge *> *G, vector<Vertex *> &vert_list, Vertex *root, long l
 
     }
 
-    for (Edge *e : *G) {
-        Vertex *u = e->getSource();
-        Vertex *v = e->getDestination();
+    for (TempEdge *e : *G) {
+        TempVertex *u = e->getSource();
+        TempVertex *v = e->getDestination();
         long start_time = e->getStartTime();
         long arr_time = e->getArrTime();
 
@@ -91,39 +98,40 @@ void mst_a1(vector<Edge *> *G, vector<Vertex *> &vert_list, Vertex *root, long l
 /*
  * creates sorted adjacency list
  */
-map<string, vector<Edge *> *> *create_sal(vector<Vertex *> &vert_list, vector<Edge *> &edge_list) {
-    map<string, vector<Edge *> *> *res = new map<string, vector<Edge *> *>();
-    for (Vertex *v : vert_list) {
-        (*res)[v->getName()] = new vector<Edge *>();
+map<string, vector<TempEdge *> *> *create_sal(vector<TempVertex *> &vert_list, vector<TempEdge *> &edge_list) {
+    map<string, vector<TempEdge *> *> *res = new map<string, vector<TempEdge *> *>();
+    for (TempVertex *v : vert_list) {
+        (*res)[v->getName()] = new vector<TempEdge *>();
     }
     sort_edges(edge_list);
-    for (Edge *e : edge_list) {
-        vector<Edge *> *temp = (*res)[e->getSource()->getName()];
+    for (TempEdge *e : edge_list) {
+        vector<TempEdge *> *temp = (*res)[e->getSource()->getName()];
         temp->insert(temp->begin(), e);
     }
 
     //display the sal
-    for (Vertex *v : vert_list) {
-        vector<Edge *> *temp = (*res)[v->getName()];
-        cout << v->getName() << ":" << endl;
-        for (Edge *edge : *temp) {
-            cout << edge->toString();
+    for (TempVertex *v : vert_list) {
+        vector<TempEdge *> *temp = (*res)[v->getName()];
+        cout << v->getName() << ": ";
+        for (TempEdge *edge : *temp) {
+            cout << edge->toString() << ", ";
         }
+        cout << endl;
     }
     return res;
 };
 
-void mst_a2(map<string, vector<Edge *> *> *sal, vector<Vertex *> vert_list, Vertex* root,  long low_bound, long up_bound) {
+void mst_a2(map<string, vector<TempEdge *> *> *sal, vector<TempVertex *> vert_list, TempVertex* root,  long low_bound, long up_bound) {
     struct mytuple {
-        Vertex* v1;
-        Vertex* v2;
+        TempVertex* v1;
+        TempVertex* v2;
         long time;
     };
 
-    map<Vertex *, int> pos;
+    map<TempVertex *, int> pos;
 
     for (int i = 0; i < vert_list.size(); i++) {
-        Vertex *u = vert_list.operator[](i);
+        TempVertex *u = vert_list.operator[](i);
         pos[u] = 0;
         u->setA(LONG_MAX);
     }
@@ -134,17 +142,17 @@ void mst_a2(map<string, vector<Edge *> *> *sal, vector<Vertex *> vert_list, Vert
     while(!st->empty()){
         mytuple tup = st->top();
         st->pop();
-        Vertex* u = tup.v1;
-        Vertex* v = tup.v2;
+        TempVertex* u = tup.v1;
+        TempVertex* v = tup.v2;
         long tav = tup.time; // t arrival v
         if (tav < v->getA()){
             v->setA(tav);
             v->setP(u);
-            vector<Edge*>* edge_list = (*sal)[v->getName()];
+            vector<TempEdge*>* edge_list = (*sal)[v->getName()];
             if(pos[v] < edge_list->size()){
-                Edge* e = (*edge_list)[pos[v]];
+                TempEdge* e = (*edge_list)[pos[v]];
                 v = e->getSource();
-                Vertex* vp = e->getDestination();
+                TempVertex* vp = e->getDestination();
                 long start = e->getStartTime();
                 long arr = e->getArrTime();
                 while (pos[v] < edge_list->size() && v->getA() <= start){
@@ -171,7 +179,7 @@ void mst_a2(map<string, vector<Edge *> *> *sal, vector<Vertex *> vert_list, Vert
 /*
  * sorts edges according to their start time
  */
-void sort_edges(vector<Edge *> &edge_list) {
+void sort_edges(vector<TempEdge *> &edge_list) {
     for (int i = 0; i < edge_list.size() - 1; i++) {
         for (int j = 0; j < edge_list.size() - i - 1; j++) {
             if (edge_list[j]->getStartTime() > edge_list[j + 1]->getStartTime()) swap(edge_list, j, j + 1);
@@ -179,8 +187,8 @@ void sort_edges(vector<Edge *> &edge_list) {
     }
 }
 
-void swap(vector<Edge *> &v, int i, int j) {
-    Edge *temp = v[i];
+void swap(vector<TempEdge *> &v, int i, int j) {
+    TempEdge *temp = v[i];
     v[i] = v[j];
     v[j] = temp;
 }
