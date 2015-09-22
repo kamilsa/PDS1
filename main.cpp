@@ -1,8 +1,6 @@
 #include <iostream>
 #include "my_graphs/tgr.h"
 #include "my_graphs/sgr.h"
-#include <vector>
-#include <map>
 #include <stack>
 
 using namespace std;

@@ -3,7 +3,7 @@
 //
 
 #include "tgr.h"
-
+//-----------------------------------------------------------------
 TempVertex::TempVertex(std::string name) {
     this->name = name;
     this->P = nullptr;
@@ -17,6 +17,23 @@ void TempVertex::setName(std::string string) {
     this->name = name;
 }
 
+TempVertex *TempVertex::getP() {
+    return this->P;
+}
+
+void TempVertex::setP(TempVertex *P) {
+    this->P = P;
+}
+
+long TempVertex::getA() {
+    return A;
+}
+
+void TempVertex::setA(long A) {
+    this->A = A;
+}
+
+//-----------------------------------------------------------------
 TempEdge::TempEdge(TempVertex *source, TempVertex *destination, long startTime, long arrTime) {
     this->source = source;
     this->destination = destination;
@@ -55,22 +72,6 @@ void TempEdge::setArrTime(long arrTime) {
 TempEdge::~TempEdge() {
     delete source;
     delete destination;
-}
-
-TempVertex *TempVertex::getP() {
-    return this->P;
-}
-
-void TempVertex::setP(TempVertex *P) {
-    this->P = P;
-}
-
-long TempVertex::getA() {
-    return A;
-}
-
-void TempVertex::setA(long A) {
-    this->A = A;
 }
 
 std::string TempEdge::toString() {
