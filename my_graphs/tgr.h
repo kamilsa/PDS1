@@ -90,9 +90,23 @@ private:
     std::vector<TempVertex*>* vertList;
     std::vector<TempEdge*>* edgeList;
     std::map<std::string, std::vector<TempEdge *> *> *sal;
+
+    void quicksort(std::vector<TempEdge*>* arr, int low, int high);
+    int partition(std::vector<TempEdge*>* arr, int low, int high);
+    void swap(std::vector<TempEdge*>* arr, int i1, int i2);
 public:
     TempGraph();
     void addEdge(TempVertex* from, TempVertex* to, int startTime, int arrTime);
-    static TempGraph createFromEdges(std::vector<TempEdge*> edgeList);
+    void addEdge(TempEdge* edge);
+    std::string toString();
+    std::vector<TempEdge*>* deriveSortedEdgeList(); // derive list of edges sorted by started time
+    /* construct minimum spanning tree via assigning to each vertex its previous vertex and earliest arrival time
+     * low_bound -- is the low time bound of observatin period
+     * up_bound -- is the upper time bound of observation period
+     * needToSort -- defines whether we want to sort adjacency list. If false it means that
+     * adjacency list is already sorted and all we need is we just to go through each
+     * list and get edges in order of their occurence
+    */
+    void mst_a1(TempVertex* root, long low_bound, long up_bound, bool needToSort); // fill out A and P fields for each vertex.
 };
 #endif //PDS1_TGR_H

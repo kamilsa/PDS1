@@ -15,9 +15,10 @@ map<string, vector<TempEdge *> *> *create_sal(vector<TempVertex *> &vert_list,
 void mst_a2(map<string, vector<TempEdge *> *> *sal, vector<TempVertex *> vert_list, TempVertex* root, long low_bound, long up_bound);
 
 void static_graph_test();
+void temp_graph_test();
 
 int main() {
-    static_graph_test();
+    temp_graph_test();
     TempVertex *v0 = new TempVertex("0");
     TempVertex *v1 = new TempVertex("1");
     TempVertex *v2 = new TempVertex("2");
@@ -75,6 +76,33 @@ void static_graph_test(){
 
     gr->toString();
     delete gr;
+}
+
+void temp_graph_test(){
+    TempGraph* g = new TempGraph();
+
+    TempVertex *v0 = new TempVertex("0");
+    TempVertex *v1 = new TempVertex("1");
+    TempVertex *v2 = new TempVertex("2");
+    TempVertex *v3 = new TempVertex("3");
+    TempVertex *v4 = new TempVertex("4");
+    TempVertex *v5 = new TempVertex("5");
+
+    g->addEdge(new TempEdge(v0, v1, 1, 3));
+    g->addEdge(new TempEdge(v0, v2, 1, 5));
+    g->addEdge(new TempEdge(v0, v2, 3, 6));
+    g->addEdge(new TempEdge(v0, v1, 4, 5));
+    g->addEdge(new TempEdge(v1, v3, 4, 6));
+    g->addEdge(new TempEdge(v1, v4, 5, 8));
+    g->addEdge(new TempEdge(v2, v5, 6, 8));
+    g->addEdge(new TempEdge(v2, v4, 7, 9));
+    g->addEdge(new TempEdge(v4, v0, 8, 9));
+
+    cout << g->toString();
+
+    g->mst_a1(v0, 0, LONG_MAX, false);
+
+
 }
 
 void mst_a1(vector<TempEdge *> *G, vector<TempVertex *> &vert_list, TempVertex *root, long low_bound, long up_bound) {
