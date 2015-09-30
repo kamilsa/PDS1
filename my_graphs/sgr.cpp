@@ -45,6 +45,12 @@ void StaticEdge::setFrom(StaticVertex *from) {
 void StaticEdge::setTo(StaticVertex *to) {
     StaticEdge::to = to;
 }
+
+std::string StaticEdge::toString(){
+    std::string res;
+    res = "<" + from->getName() + ", " + to->getName() + ", " + std::to_string(weight) + ">";
+    return res;
+}
 //-----------------------------------------------------------------
 
 StaticGraph::StaticGraph() {
@@ -63,15 +69,17 @@ void StaticGraph::add_edge(StaticVertex *from, StaticVertex *to, int weight) {
 StaticGraph::~StaticGraph() {
     delete this->adj_list;
 }
-void StaticGraph::toString() {
+std::string StaticGraph::toString() {
+    std::string res = "";
     for(auto it1 = adj_list->begin(); it1 != adj_list->end(); it1++){
         auto temp_list = it1->second;
         if(!temp_list->empty()) {
-            std::cout << (*temp_list)[0]->getFrom()->getName() << ": ";
+            res += (*temp_list)[0]->getFrom()->getName() + ": ";
             for (auto el : *temp_list) {
-                std::cout << el->getTo()->getName() << ", ";
+                res += el->toString() + ", ";
             }
-            std::cout << std::endl;
+            res += "\n";
         }
     }
+    return res;
 }

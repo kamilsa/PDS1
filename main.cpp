@@ -18,7 +18,9 @@ void static_graph_test();
 void temp_graph_test();
 
 int main() {
+//    static_graph_test();
     temp_graph_test();
+    return 0;
     TempVertex *v0 = new TempVertex("0");
     TempVertex *v1 = new TempVertex("1");
     TempVertex *v2 = new TempVertex("2");
@@ -74,11 +76,12 @@ void static_graph_test(){
     gr->add_edge(v1, v3, 2);
     gr->add_edge(v3, v2, 3);
 
-    gr->toString();
+    cout << gr->toString();
     delete gr;
 }
 
 void temp_graph_test(){
+
     TempGraph* g = new TempGraph();
 
     TempVertex *v0 = new TempVertex("0");
@@ -98,13 +101,17 @@ void temp_graph_test(){
     g->addEdge(new TempEdge(v2, v4, 7, 9));
     g->addEdge(new TempEdge(v4, v0, 8, 9));
 
-    cout << g->toString();
+    g->mst_a2(v0, 0, LONG_MAX, true);
+    for(TempVertex* v : *g->getVertSet()){
+        if (v != v0)
+            cout << "P(" << v->getName() << ") = " << v->getP()->getName() << " A(" << v->getName() << ") = " << v->getA() << endl;
+    }
+    cout << "It was from class" << endl;
 
-    g->mst_a1(v0, 0, LONG_MAX, false);
-
-
+    cout << g->getStaticGraph(v0)->toString();
 }
 
+//deprecated. One time will delete it:)
 void mst_a1(vector<TempEdge *> *G, vector<TempVertex *> &vert_list, TempVertex *root, long low_bound, long up_bound) {
     for (int i = 0; i < vert_list.size(); i++) {
         if (vert_list[i] != root) {

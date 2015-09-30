@@ -40,6 +40,8 @@ public:
     StaticVertex *getTo();
 
     void setTo(StaticVertex *to);
+
+    std::string toString();
 };
 
 class StaticGraph{
@@ -50,6 +52,6 @@ public:
     ~StaticGraph();
     void add_edge(StaticVertex* from, StaticVertex* to, int weight);
     void remove_edge(StaticVertex* from, StaticVertex* to);
-    void toString();
+    std::string toString();
 };
 #endif //PDS1_SGR_H
