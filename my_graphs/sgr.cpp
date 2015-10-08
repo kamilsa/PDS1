@@ -24,17 +24,17 @@ StaticVertex *StaticEdge::getTo() {
     return to;
 }
 //-----------------------------------------------------------------
-StaticEdge::StaticEdge(StaticVertex *from, StaticVertex *to, int weight) {
+StaticEdge::StaticEdge(StaticVertex *from, StaticVertex *to, long weight) {
     this->from = from;
     this->to = to;
     this->weight = weight;
 }
 
-int StaticEdge::getWeight() {
+long StaticEdge::getWeight() {
     return weight;
 }
 
-void StaticEdge::setWeight(int weight) {
+void StaticEdge::setWeight(long weight) {
     StaticEdge::weight = weight;
 }
 
@@ -55,9 +55,12 @@ std::string StaticEdge::toString(){
 
 StaticGraph::StaticGraph() {
     adj_list = new std::map<std::string, std::vector<StaticEdge*>*>();
+    vertSet = new std::set<StaticVertex*>();
 }
 
-void StaticGraph::add_edge(StaticVertex *from, StaticVertex *to, int weight) {
+void StaticGraph::add_edge(StaticVertex *from, StaticVertex *to, long weight) {
+    vertSet->insert(vertSet->end(), from);
+    vertSet->insert(vertSet->end(), to);
     if((*adj_list)[from->getName()] == 0x00){
         (*adj_list)[from->getName()] = new std::vector<StaticEdge*>();
     }
@@ -68,6 +71,7 @@ void StaticGraph::add_edge(StaticVertex *from, StaticVertex *to, int weight) {
 
 StaticGraph::~StaticGraph() {
     delete this->adj_list;
+    delete this->vertSet;
 }
 std::string StaticGraph::toString() {
     std::string res = "";
@@ -82,4 +86,16 @@ std::string StaticGraph::toString() {
         }
     }
     return res;
+}
+
+StaticGraph *StaticGraph::FloydWarshall() {
+    StaticGraph* dist = new StaticGraph();// transitive closure
+    for (auto it1 = adj_list->begin(); it1 != adj_list->end(); it1++){
+        std::vector<StaticEdge*>* currVect = it1->second;
+        for(int i = 0; i < currVect->size(); i++){
+            StaticEdge* edge = (*currVect)[i];
+            dist->add_edge(edge->getFrom(), edge->getTo(), edge->getWeight());
+        }
+    }
+    return nullptr;
 }

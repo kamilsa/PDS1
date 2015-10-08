@@ -2,7 +2,6 @@
 #include "my_graphs/tgr.h"
 #include "my_graphs/sgr.h"
 #include <stack>
-
 using namespace std;
 
 void mst_a1(vector<TempEdge *> *G, vector<TempVertex *> &vert_list, TempVertex *root, long low_bound, long up_bound);
@@ -16,6 +15,7 @@ void mst_a2(map<string, vector<TempEdge *> *> *sal, vector<TempVertex *> vert_li
 
 void static_graph_test();
 void temp_graph_test();
+void boost_test();
 
 int main() {
 //    static_graph_test();
@@ -108,7 +108,19 @@ void temp_graph_test(){
     }
     cout << "It was from class" << endl;
 
-    cout << g->getStaticGraph(v0)->toString();
+    StaticGraph* staticGraph = g->getStaticGraph(v0);
+    cout << staticGraph->toString();
+    staticGraph->FloydWarshall();
+}
+
+void boost_test(){
+    enum family
+    { Jeanie, Debbie, Rick, John, Amanda, Margaret, Benjamin, N };
+
+    string name[] = { "Jeanie", "Debbie", "Rick", "John", "Amanda",
+                    "Margaret", "Benjamin"
+    };
+    adjacency_list<> g(N);
 }
 
 //deprecated. One time will delete it:)
