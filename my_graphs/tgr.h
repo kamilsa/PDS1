@@ -74,8 +74,9 @@ private:
     TempVertex *destination;
     long startTime;
     long arrTime;
+    long weight;
 public:
-    TempEdge(TempVertex *source, TempVertex *destination, long startTime, long arrTime);
+    TempEdge(TempVertex *source, TempVertex *destination, long startTime, long arrTime, long weight);
 
     ~TempEdge();
 
@@ -96,6 +97,10 @@ public:
     long getArrTime() const;
 
     void setArrTime(long arrTime);
+
+    long getWeight();
+
+    void setWeight(long weight);
 
     std::string toString();
 };

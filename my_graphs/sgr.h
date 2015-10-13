@@ -5,11 +5,20 @@
 #ifndef PDS1_SGR_H
 #define PDS1_SGR_H
 
+
 #include <iosfwd>
 #include <string>
 #include <map>
 #include <vector>
 #include <set>
+#include <queue>
+//#include <algorithm>
+
+class StaticVertex;
+class StaticEdge;
+class StaticGraph;
+class TransitiveClosure;
+class Tree;
 
 
 class StaticVertex{
@@ -46,19 +55,114 @@ public:
 };
 
 class StaticGraph{
-private:
+protected:
     std::map<std::string,std::vector<StaticEdge*>*>* adj_list;
     std::set<StaticVertex*>* vertSet;
+    StaticVertex* root; //
+    std::map<std::string, StaticVertex*>* labelVert;
 public:
     StaticGraph();
-    ~StaticGraph();
-    void add_edge(StaticVertex* from, StaticVertex* to, long weight);
-    void remove_edge(StaticVertex* from, StaticVertex* to);
-    std::string toString();
+
+    virtual ~StaticGraph();
+
+    virtual StaticVertex* getRoot();
+
+    virtual void setRoot(StaticVertex* v);
+
+    virtual std::set<StaticVertex*>* getVertSet();
+
+    virtual std::map<std::string, StaticVertex*>* getLabelVertMap();
+
+    virtual void add_edge(StaticVertex* from, StaticVertex* to, long weight);
+
+    virtual void remove_edge(StaticVertex* from, StaticVertex* to);
+
+    virtual bool hasEdge(StaticVertex* from, StaticVertex* to);
+
+    virtual std::string toString();
 
     //calculates shortest path between vertex u and v within given graph, using Dijkstra method
 
-    //returns transitive closure of graph
-    StaticGraph* FloydWarshall();
+    virtual //returns shortest paths from source
+    std::map<StaticVertex*, long>* dijkstra(StaticVertex* source);
+
+    virtual //returns transitive closure, executing dijkstra |V| times
+    TransitiveClosure* transitiveClosure();
+
+    virtual Tree* alg3(TransitiveClosure* tr_cl, int i, int k, StaticVertex* root, std::set<StaticVertex*>* X);
 };
+
+/*
+ * class that represents transitive closure of static graph
+ * inherited from StaticGraph
+ */
+class TransitiveClosure : StaticGraph{
+public:
+    TransitiveClosure();
+
+    virtual ~TransitiveClosure();
+
+    virtual StaticVertex *getRoot() override;
+
+    virtual void setRoot(StaticVertex *v) override;
+
+    virtual std::set<StaticVertex*>* getVertSet() override;
+
+    virtual std::map<std::string, StaticVertex*>* getLabelVertMap() override;
+
+    virtual void add_edge(StaticVertex *from, StaticVertex *to, long weight) override;
+
+    virtual void remove_edge(StaticVertex *from, StaticVertex *to) override;
+
+    virtual bool hasEdge(StaticVertex* from, StaticVertex* to) override;
+
+    std::string toString() override;
+
+    virtual std::map<StaticVertex *, long> *dijkstra(StaticVertex *source) override;
+
+    virtual TransitiveClosure *transitiveClosure() override;
+
+/*
+     * returns cost in edge (u,v)
+     * if there is no edge(u,v) return LONG_MAX
+     */
+    long costEdge(StaticVertex *u, StaticVertex* v);
+    long costEdge(std::string u_name, std::string v_name);
+
+};
+
+/*
+ * Tree class, has feature to calculate density
+ */
+class Tree : StaticGraph{
+private:
+    long totalWeight;
+public:
+    Tree();
+
+    virtual ~Tree();
+
+    virtual StaticVertex *getRoot() override;
+
+    virtual void setRoot(StaticVertex *v) override;
+
+    virtual std::set<StaticVertex*>* getVertSet() override;
+
+    virtual std::map<std::string, StaticVertex*>* getLabelVertMap() override;
+
+    virtual void add_edge(StaticVertex *from, StaticVertex *to, long weight) override;
+
+    virtual void remove_edge(StaticVertex *from, StaticVertex *to) override;
+
+    virtual bool hasEdge(StaticVertex* from, StaticVertex* to) override;
+
+    virtual std::string toString() override;
+
+    float getDensity();
+
+    static Tree* merge(Tree* t1, Tree* t2);
+};
+
+std::set<StaticVertex*>* vert_intersect(std::set<StaticVertex*>* s1, std::set<StaticVertex*>* s2);
+std::set<StaticVertex*>* vert_minus(std::set<StaticVertex*>* s1, std::set<StaticVertex*>* s2);
 #endif //PDS1_SGR_H

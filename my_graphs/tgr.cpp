@@ -77,11 +77,12 @@ int TempVertex::binarySearchOrNext(long target, int low, int high) {
 }
 
 //-----------------------------------------------------------------
-TempEdge::TempEdge(TempVertex *source, TempVertex *destination, long startTime, long arrTime) {
+TempEdge::TempEdge(TempVertex *source, TempVertex *destination, long startTime, long arrTime, long weight) {
     this->source = source;
     this->destination = destination;
     this->startTime = startTime;
     this->arrTime = arrTime;
+    this->weight = weight;
 }
 
 TempVertex *TempEdge::getSource() const {
@@ -112,6 +113,14 @@ void TempEdge::setArrTime(long arrTime) {
     TempEdge::arrTime = arrTime;
 }
 
+long TempEdge::getWeight(){
+    return this->weight;
+}
+
+void TempEdge::setWeight(long weight) {
+    this->weight = weight;
+}
+
 TempEdge::~TempEdge() {
     delete source;
     delete destination;
@@ -122,7 +131,8 @@ std::string TempEdge::toString() {
     res += this->getSource()->getName() + ", ";
     res += this->getDestination()->getName() + ", ";
     res += std::to_string(this->getStartTime()) + ", ";
-    res += std::to_string(this->getArrTime()) + ">";
+    res += std::to_string(this->getArrTime()) + ", ";
+    res += std::to_string(this->weight) + ">";
     return res;
 }
 
@@ -144,7 +154,8 @@ void TempGraph::addEdge(TempVertex *from, TempVertex *to, int startTime, int arr
     }
 
     auto temp_vector = (*sal)[from->getName()];
-    TempEdge *tempEdge = new TempEdge(from, to, startTime, arrTime);
+    long weight = arrTime - startTime; // !!!! YOU CAN DEFINE WEIGHT DIFFERENTLY
+    TempEdge *tempEdge = new TempEdge(from, to, startTime, arrTime, weight);
     temp_vector->insert(temp_vector->end(), tempEdge);
 
     to->add_arr_edge(tempEdge);
@@ -356,29 +367,35 @@ void TempGraph::sortAdjacencyList(TempGraph::sort_type type) {
 };
 
 StaticGraph *TempGraph::getStaticGraph(TempVertex *root) {
-    struct Pair {
-        long corTime; // corresponding time
+    //triple of vertex and its corresponding arrival time, and weight of in-edge
+    struct Triple {
+        long corArrTime;
+        long weight;
         StaticVertex *staticVertex;
     };
 
     StaticGraph *st = new StaticGraph();
 
-    std::map<TempVertex *, std::vector<Pair *> *> *vert_times = new std::map<TempVertex *, std::vector<Pair *> *>();
+    std::map<TempVertex *, std::vector<Triple *> *> *vert_times = new std::map<TempVertex *, std::vector<Triple *> *>();
+
+    //first part -- creating vertexes
     for (TempVertex *v : *vertSet) {
-        (*vert_times)[v] = new std::vector<Pair *>();
-        std::vector<Pair *> *vect = (*vert_times)[v];
+        (*vert_times)[v] = new std::vector<Triple *>();
+        std::vector<Triple *> *vect = (*vert_times)[v];
         if (v != root) {
             //TODO: create lists of static vertexes and their corresponding times
             std::vector<TempEdge *> *t_edges = v->getSas();
             for (int i = 0; i < t_edges->size(); i++) {
                 TempEdge *edge = (*t_edges)[i];
-                Pair *pair = new Pair;
-                pair->corTime = edge->getArrTime();
+                Triple *pair = new Triple;
+                pair->corArrTime = edge->getArrTime();
+                pair->weight = edge->getWeight();
                 pair->staticVertex = new StaticVertex(edge->getDestination()->getName() + "_" + std::to_string(i+1));
                 vect->insert(vect->end(), pair);
             }
-            Pair *pair1 = new Pair;
-            pair1->corTime = LONG_MAX;
+            Triple *pair1 = new Triple;
+            pair1->corArrTime = LONG_MAX;
+            pair1->weight = 0;
             pair1->staticVertex = new StaticVertex((*t_edges)[0]->getDestination()->getName());
             vect->insert(vect->end(), pair1);
 
@@ -389,32 +406,35 @@ StaticGraph *TempGraph::getStaticGraph(TempVertex *root) {
             }
         }
         else{
-            (*vert_times)[v] = new std::vector<Pair *>();
-            std::vector<Pair *> *vect = (*vert_times)[v];
-            Pair* pair = new Pair;
-            pair->corTime = 0;
+            (*vert_times)[v] = new std::vector<Triple *>();
+            std::vector<Triple *> *vect = (*vert_times)[v];
+            Triple * pair = new Triple;
+            pair->corArrTime = 0;
+            pair->weight = 0;
             pair->staticVertex = new StaticVertex(v->getName());
             vect->insert(vect->end(), pair);
+
+            st->setRoot(pair->staticVertex); // if want to define root
         }
     }
-//    std::cout << st->toString();
 
+    //second part -- creating edges
     for (auto it1 = sal->begin(); it1 != sal->end(); it1++) {
         std::vector<TempEdge *> *t_edges = it1->second;
         for (int i = 0; i < t_edges->size(); i++) {
             TempEdge *t_edge = (*t_edges)[i];
             TempVertex *u = t_edge->getSource(); // source vertex
             TempVertex *v = t_edge->getDestination(); // destination vertex
-            std::vector<Pair *> *uPairs = (*vert_times)[u];
-            std::vector<Pair *> *vPairs = (*vert_times)[v];
+            std::vector<Triple *> *uPairs = (*vert_times)[u];
+            std::vector<Triple *> *vPairs = (*vert_times)[v];
 
-            Pair* from = nullptr;
-            Pair* to = nullptr;
+            Triple * from = nullptr;
+            Triple * to = nullptr;
             long weight;
             if(u != root) {
                 for (int j = 0; j < uPairs->size() - 1; j++) {
-                    if ((*uPairs)[j]->corTime <= t_edge->getStartTime() &&
-                        (*uPairs)[j + 1]->corTime > t_edge->getStartTime()) {
+                    if ((*uPairs)[j]->corArrTime <= t_edge->getStartTime() &&
+                        (*uPairs)[j + 1]->corArrTime > t_edge->getStartTime()) {
                         from = (*uPairs)[j];
                         break;
                     }
@@ -424,15 +444,15 @@ StaticGraph *TempGraph::getStaticGraph(TempVertex *root) {
                 from = (*uPairs)[0];
             }
             for(int j = 0; j < vPairs->size(); j++){
-                if ((*vPairs)[j]->corTime == t_edge->getArrTime()){
+                if ((*vPairs)[j]->corArrTime == t_edge->getArrTime()){
                     to = (*vPairs)[j];
                     break;
                 }
             }
             if (to == nullptr)
                 continue;
-            weight = to->corTime - from->corTime;
-            st->add_edge(from->staticVertex, to->staticVertex, weight); //TODO: fix weigh calculation
+            weight = t_edge->getWeight();
+            st->add_edge(from->staticVertex, to->staticVertex, weight);
         }
     }
 

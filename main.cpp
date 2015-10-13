@@ -2,7 +2,15 @@
 #include "my_graphs/tgr.h"
 #include "my_graphs/sgr.h"
 #include <stack>
+
+#include <boost/config.hpp>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/tuple/tuple.hpp>
+
+#include <chrono> // to measure time
+
 using namespace std;
+using namespace boost;
 
 void mst_a1(vector<TempEdge *> *G, vector<TempVertex *> &vert_list, TempVertex *root, long low_bound, long up_bound);
 
@@ -10,16 +18,26 @@ void sort_edges(vector<TempEdge *> &edge_list); // sorts edges according to thei
 void swap(vector<TempEdge *> &v, int i, int j);
 
 map<string, vector<TempEdge *> *> *create_sal(vector<TempVertex *> &vert_list,
-                                          vector<TempEdge *> &edge_list); // creates sorted adjacency list
-void mst_a2(map<string, vector<TempEdge *> *> *sal, vector<TempVertex *> vert_list, TempVertex* root, long low_bound, long up_bound);
+                                              vector<TempEdge *> &edge_list); // creates sorted adjacency list
+void mst_a2(map<string, vector<TempEdge *> *> *sal, vector<TempVertex *> vert_list, TempVertex *root, long low_bound,
+            long up_bound);
 
 void static_graph_test();
+
 void temp_graph_test();
+
 void boost_test();
+
+void set_test();
 
 int main() {
 //    static_graph_test();
-    temp_graph_test();
+        auto start = std::chrono::high_resolution_clock::now();
+        temp_graph_test();
+//        set_test();
+        auto finish = std::chrono::high_resolution_clock::now();
+        cout << "Execution time : " << std::chrono::duration_cast<std::chrono::nanoseconds>(finish-start).count();
+//    boost_test();
     return 0;
     TempVertex *v0 = new TempVertex("0");
     TempVertex *v1 = new TempVertex("1");
@@ -37,15 +55,15 @@ int main() {
     vert_list->insert(vert_list->end(), v5);
 
     vector<TempEdge *> *edge_list = new vector<TempEdge *>();
-    edge_list->insert(edge_list->end(), new TempEdge(v0, v1, 1, 3));
-    edge_list->insert(edge_list->end(), new TempEdge(v0, v2, 1, 5));
-    edge_list->insert(edge_list->end(), new TempEdge(v0, v2, 3, 6));
-    edge_list->insert(edge_list->end(), new TempEdge(v0, v1, 4, 5));
-    edge_list->insert(edge_list->end(), new TempEdge(v1, v3, 4, 6));
-    edge_list->insert(edge_list->end(), new TempEdge(v1, v4, 5, 8));
-    edge_list->insert(edge_list->end(), new TempEdge(v2, v5, 6, 8));
-    edge_list->insert(edge_list->end(), new TempEdge(v2, v4, 7, 9));
-    edge_list->insert(edge_list->end(), new TempEdge(v4, v0, 8, 9));
+    edge_list->insert(edge_list->end(), new TempEdge(v0, v1, 1, 3, 2));
+    edge_list->insert(edge_list->end(), new TempEdge(v0, v2, 1, 5, 4));
+    edge_list->insert(edge_list->end(), new TempEdge(v0, v2, 3, 6, 3));
+    edge_list->insert(edge_list->end(), new TempEdge(v0, v1, 4, 5, 1));
+    edge_list->insert(edge_list->end(), new TempEdge(v1, v3, 4, 6, 2));
+    edge_list->insert(edge_list->end(), new TempEdge(v1, v4, 5, 8, 3));
+    edge_list->insert(edge_list->end(), new TempEdge(v2, v5, 6, 8, 2));
+    edge_list->insert(edge_list->end(), new TempEdge(v2, v4, 7, 9, 2));
+    edge_list->insert(edge_list->end(), new TempEdge(v4, v0, 8, 9, 1));
 
 //    edge_list->insert(edge_list->end(), new Edge(v0, v1, 1, 1));
 //    edge_list->insert(edge_list->end(), new Edge(v1, v4, 3, 3));
@@ -55,10 +73,12 @@ int main() {
 //    edge_list->insert(edge_list->end(), new Edge(v2, v0, 2, 2));
 
 //    mst_a1(edge_list, *vert_list, v0, 0, LONG_MAX);
-    map<string,vector<TempEdge*>*>* sal = create_sal(*vert_list, *edge_list);
+    map<string, vector<TempEdge *> *> *sal = create_sal(*vert_list, *edge_list);
     mst_a2(sal, *vert_list, v0, 0, LONG_MAX);
     for (TempVertex *v : *vert_list) {
-        if (v != v0) cout << "P(" << v->getName() << ") = " << v->getP()->getName()  << " A(" << v->getName() << ") = " << v->getA() << endl;
+        if (v != v0)
+            cout << "P(" << v->getName() << ") = " << v->getP()->getName() << " A(" << v->getName() << ") = " <<
+            v->getA() << endl;
     }
 
     delete edge_list;
@@ -67,11 +87,11 @@ int main() {
 }
 
 
-void static_graph_test(){
-    StaticGraph* gr = new StaticGraph();
-    StaticVertex* v1 = new StaticVertex("1");
-    StaticVertex* v2 = new StaticVertex("2");
-    StaticVertex* v3 = new StaticVertex("3");
+void static_graph_test() {
+    StaticGraph *gr = new StaticGraph();
+    StaticVertex *v1 = new StaticVertex("1");
+    StaticVertex *v2 = new StaticVertex("2");
+    StaticVertex *v3 = new StaticVertex("3");
     gr->add_edge(v1, v2, 1);
     gr->add_edge(v1, v3, 2);
     gr->add_edge(v3, v2, 3);
@@ -80,9 +100,9 @@ void static_graph_test(){
     delete gr;
 }
 
-void temp_graph_test(){
+void temp_graph_test() {
 
-    TempGraph* g = new TempGraph();
+    TempGraph *g = new TempGraph();
 
     TempVertex *v0 = new TempVertex("0");
     TempVertex *v1 = new TempVertex("1");
@@ -91,38 +111,107 @@ void temp_graph_test(){
     TempVertex *v4 = new TempVertex("4");
     TempVertex *v5 = new TempVertex("5");
 
-    g->addEdge(new TempEdge(v0, v1, 1, 3));
-    g->addEdge(new TempEdge(v0, v2, 1, 5));
-    g->addEdge(new TempEdge(v0, v2, 3, 6));
-    g->addEdge(new TempEdge(v0, v1, 4, 5));
-    g->addEdge(new TempEdge(v1, v3, 4, 6));
-    g->addEdge(new TempEdge(v1, v4, 5, 8));
-    g->addEdge(new TempEdge(v2, v5, 6, 8));
-    g->addEdge(new TempEdge(v2, v4, 7, 9));
-    g->addEdge(new TempEdge(v4, v0, 8, 9));
+    g->addEdge(new TempEdge(v0, v1, 1, 3, 2));
+    g->addEdge(new TempEdge(v0, v2, 1, 5, 4));
+    g->addEdge(new TempEdge(v0, v2, 3, 6, 3));
+    g->addEdge(new TempEdge(v0, v1, 4, 5, 1));
+    g->addEdge(new TempEdge(v1, v3, 4, 6, 2));
+    g->addEdge(new TempEdge(v1, v4, 5, 8, 3));
+    g->addEdge(new TempEdge(v2, v5, 6, 8, 2));
+    g->addEdge(new TempEdge(v2, v4, 7, 9, 2));
+    g->addEdge(new TempEdge(v4, v0, 8, 9, 1));
 
     g->mst_a2(v0, 0, LONG_MAX, true);
-    for(TempVertex* v : *g->getVertSet()){
+    for (TempVertex *v : *g->getVertSet()) {
         if (v != v0)
-            cout << "P(" << v->getName() << ") = " << v->getP()->getName() << " A(" << v->getName() << ") = " << v->getA() << endl;
+            cout << "P(" << v->getName() << ") = " << v->getP()->getName() << " A(" << v->getName() << ") = " <<
+            v->getA() << endl;
     }
     cout << "It was from class" << endl;
 
-    StaticGraph* staticGraph = g->getStaticGraph(v0);
+    auto start = std::chrono::high_resolution_clock::now();
+
+    StaticGraph *staticGraph = g->getStaticGraph(v0);
     cout << staticGraph->toString();
-    staticGraph->FloydWarshall();
+    TransitiveClosure *transClosure = staticGraph->transitiveClosure();
+    cout << "\nTransitive closure: " << endl;
+    cout << transClosure->toString();
+    auto map = transClosure->getLabelVertMap(); // map to match string labels with vertexes
+    set<StaticVertex*>*termSet = new set<StaticVertex*>(); // set of terminals
+    termSet->insert(termSet->begin(), (*map)["1"]);
+    termSet->insert(termSet->begin(), (*map)["2"]);
+    termSet->insert(termSet->begin(), (*map)["3"]);
+    termSet->insert(termSet->begin(), (*map)["4"]);
+    termSet->insert(termSet->begin(), (*map)["5"]);
+    cout << staticGraph->alg3(transClosure, 2, termSet->size(), staticGraph->getRoot(), termSet)->toString();
 }
 
-void boost_test(){
-    enum family
-    { Jeanie, Debbie, Rick, John, Amanda, Margaret, Benjamin, N };
+typedef property<vertex_distance_t, float,
+        property<vertex_name_t, std::string> > VertexProperty;
+typedef property<edge_weight_t, float> EdgeProperty;
 
-    string name[] = { "Jeanie", "Debbie", "Rick", "John", "Amanda",
-                    "Margaret", "Benjamin"
+typedef adjacency_list<mapS, vecS, undirectedS,
+        VertexProperty, EdgeProperty> Graph;
+
+void boost_test() {
+    enum family {
+        Jeanie, Debbie, Rick, John, Amanda, Margaret, Benjamin, N
     };
+
+    string name[] = {"Jeanie", "Debbie", "Rick", "John", "Amanda",
+                     "Margaret", "Benjamin"
+    };
+
     adjacency_list<> g(N);
+    add_edge(Jeanie, Debbie, g);
+    add_edge(Jeanie, Rick, g);
+    add_edge(Jeanie, John, g);
+    add_edge(Debbie, Amanda, g);
+    add_edge(Rick, Margaret, g);
+    add_edge(John, Benjamin, g);
+
+    graph_traits<adjacency_list<> >::vertex_iterator i, end;
+    graph_traits<adjacency_list<> >::adjacency_iterator ai, a_end;
+    property_map<adjacency_list<>, vertex_index_t>::type index_map = get(vertex_index, g);
+
+    for (tie(i, end) = vertices(g); i != end; ++i) {
+        std::cout << name[get(index_map, *i)];
+        tie(ai, a_end) = adjacent_vertices(*i, g);
+        if (ai == a_end)
+            std::cout << " has no children";
+        else
+            std::cout << " is the parent of ";
+        for (; ai != a_end; ++ai) {
+            std::cout << name[get(index_map, *ai)];
+            if (boost::next(ai) != a_end)
+                std::cout << ", ";
+        }
+        std::cout << std::endl;
+    }
 }
 
+void set_test(){
+    class pair{
+    public:
+        StaticVertex* v1;
+        StaticVertex* v2;
+    };
+    pair* p1, *p2;
+    p1 = new pair;
+    p2 = new pair;
+    StaticVertex* v1 = new StaticVertex("1");
+    StaticVertex* v2 = new StaticVertex("2");
+    std::set<pair*> *s = new std::set<pair*>();
+
+    p1->v1 = v1;
+    p1->v2 = v2;
+
+    p2->v1 = v1;
+    p2->v2 = v2;
+
+    s->insert(s->begin(), p1);
+    cout << s->size();
+}
 //deprecated. One time will delete it:)
 void mst_a1(vector<TempEdge *> *G, vector<TempVertex *> &vert_list, TempVertex *root, long low_bound, long up_bound) {
     for (int i = 0; i < vert_list.size(); i++) {
@@ -176,10 +265,11 @@ map<string, vector<TempEdge *> *> *create_sal(vector<TempVertex *> &vert_list, v
     return res;
 };
 
-void mst_a2(map<string, vector<TempEdge *> *> *sal, vector<TempVertex *> vert_list, TempVertex* root,  long low_bound, long up_bound) {
+void mst_a2(map<string, vector<TempEdge *> *> *sal, vector<TempVertex *> vert_list, TempVertex *root, long low_bound,
+            long up_bound) {
     struct mytuple {
-        TempVertex* v1;
-        TempVertex* v2;
+        TempVertex *v1;
+        TempVertex *v2;
         long time;
     };
 
@@ -190,27 +280,29 @@ void mst_a2(map<string, vector<TempEdge *> *> *sal, vector<TempVertex *> vert_li
         pos[u] = 0;
         u->setA(LONG_MAX);
     }
-    stack<mytuple>* st = new stack<mytuple>();
+    stack<mytuple> *st = new stack<mytuple>();
     mytuple temp;
-    temp.v1 = root; temp.v2 = root; temp.time = low_bound;
+    temp.v1 = root;
+    temp.v2 = root;
+    temp.time = low_bound;
     st->push(temp);
-    while(!st->empty()){
+    while (!st->empty()) {
         mytuple tup = st->top();
         st->pop();
-        TempVertex* u = tup.v1;
-        TempVertex* v = tup.v2;
+        TempVertex *u = tup.v1;
+        TempVertex *v = tup.v2;
         long tav = tup.time; // t arrival v
-        if (tav < v->getA()){
+        if (tav < v->getA()) {
             v->setA(tav);
             v->setP(u);
-            vector<TempEdge*>* edge_list = (*sal)[v->getName()];
-            if(pos[v] < edge_list->size()){
-                TempEdge* e = (*edge_list)[pos[v]];
+            vector<TempEdge *> *edge_list = (*sal)[v->getName()];
+            if (pos[v] < edge_list->size()) {
+                TempEdge *e = (*edge_list)[pos[v]];
                 v = e->getSource();
-                TempVertex* vp = e->getDestination();
+                TempVertex *vp = e->getDestination();
                 long start = e->getStartTime();
                 long arr = e->getArrTime();
-                while (pos[v] < edge_list->size() && v->getA() <= start){
+                while (pos[v] < edge_list->size() && v->getA() <= start) {
                     mytuple temp_tup;
                     temp_tup.v1 = v;
                     temp_tup.v2 = vp;
