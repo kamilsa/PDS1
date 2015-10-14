@@ -63,6 +63,8 @@ protected:
 public:
     StaticGraph();
 
+    StaticGraph(StaticGraph* g);
+
     virtual ~StaticGraph();
 
     virtual StaticVertex* getRoot();
@@ -77,7 +79,7 @@ public:
 
     virtual void remove_edge(StaticVertex* from, StaticVertex* to);
 
-    virtual bool hasEdge(StaticVertex* from, StaticVertex* to);
+    virtual StaticEdge* hasEdge(StaticVertex* from, StaticVertex* to);
 
     virtual std::string toString();
 
@@ -90,6 +92,11 @@ public:
     TransitiveClosure* transitiveClosure();
 
     virtual Tree* alg3(TransitiveClosure* tr_cl, int i, int k, StaticVertex* root, std::set<StaticVertex*>* X);
+
+    /*improved alg3*/
+    virtual Tree* alg4(TransitiveClosure* tr_cl, int i, int k, StaticVertex* root, std::set<StaticVertex*>* X);
+
+    virtual Tree* alg5(TransitiveClosure* tr_cl, int i, int k, StaticVertex* root, std::set<StaticVertex*>* X, StaticEdge* e);
 };
 
 /*
@@ -114,7 +121,7 @@ public:
 
     virtual void remove_edge(StaticVertex *from, StaticVertex *to) override;
 
-    virtual bool hasEdge(StaticVertex* from, StaticVertex* to) override;
+    virtual StaticEdge* hasEdge(StaticVertex* from, StaticVertex* to) override;
 
     std::string toString() override;
 
@@ -140,6 +147,8 @@ private:
 public:
     Tree();
 
+    Tree(Tree* tree);
+
     virtual ~Tree();
 
     virtual StaticVertex *getRoot() override;
@@ -154,11 +163,11 @@ public:
 
     virtual void remove_edge(StaticVertex *from, StaticVertex *to) override;
 
-    virtual bool hasEdge(StaticVertex* from, StaticVertex* to) override;
+    virtual StaticEdge* hasEdge(StaticVertex* from, StaticVertex* to) override;
 
     virtual std::string toString() override;
 
-    float getDensity();
+    long getTotalWeight();
 
     static Tree* merge(Tree* t1, Tree* t2);
 };

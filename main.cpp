@@ -143,6 +143,7 @@ void temp_graph_test() {
     termSet->insert(termSet->begin(), (*map)["3"]);
     termSet->insert(termSet->begin(), (*map)["4"]);
     termSet->insert(termSet->begin(), (*map)["5"]);
+    cout << "Weight minimum spanning tree:" << endl;
     cout << staticGraph->alg3(transClosure, 2, termSet->size(), staticGraph->getRoot(), termSet)->toString();
 }
 
