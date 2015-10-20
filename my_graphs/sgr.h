@@ -97,6 +97,8 @@ public:
     virtual Tree* alg4(TransitiveClosure* tr_cl, int i, int k, StaticVertex* root, std::set<StaticVertex*>* X);
 
     virtual Tree* alg5(TransitiveClosure* tr_cl, int i, int k, StaticVertex* root, std::set<StaticVertex*>* X, StaticEdge* e);
+
+    virtual Tree* alg6(TransitiveClosure* tr_cl, int i, int k, StaticVertex* root, std::set<StaticVertex*>* X);
 };
 
 /*
@@ -161,6 +163,9 @@ public:
 
     virtual void add_edge(StaticVertex *from, StaticVertex *to, long weight) override;
 
+    /*returns the created tree after adding new edge*/
+    Tree* addEdgeWithCopy(StaticVertex *from, StaticVertex*to, long weight);
+
     virtual void remove_edge(StaticVertex *from, StaticVertex *to) override;
 
     virtual StaticEdge* hasEdge(StaticVertex* from, StaticVertex* to) override;
@@ -168,6 +173,9 @@ public:
     virtual std::string toString() override;
 
     long getTotalWeight();
+
+    /*division of total weight by covered terms from X*/
+    double getDensity(std::set<StaticVertex*>* X);
 
     static Tree* merge(Tree* t1, Tree* t2);
 };

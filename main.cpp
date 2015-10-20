@@ -5,7 +5,6 @@
 
 #include <boost/config.hpp>
 #include <boost/graph/adjacency_list.hpp>
-#include <boost/tuple/tuple.hpp>
 
 #include <chrono> // to measure time
 
@@ -101,7 +100,6 @@ void static_graph_test() {
 }
 
 void temp_graph_test() {
-
     TempGraph *g = new TempGraph();
 
     TempVertex *v0 = new TempVertex("0");
@@ -129,8 +127,6 @@ void temp_graph_test() {
     }
     cout << "It was from class" << endl;
 
-    auto start = std::chrono::high_resolution_clock::now();
-
     StaticGraph *staticGraph = g->getStaticGraph(v0);
     cout << staticGraph->toString();
     TransitiveClosure *transClosure = staticGraph->transitiveClosure();
@@ -144,7 +140,8 @@ void temp_graph_test() {
     termSet->insert(termSet->begin(), (*map)["4"]);
     termSet->insert(termSet->begin(), (*map)["5"]);
     cout << "Weight minimum spanning tree:" << endl;
-    cout << staticGraph->alg3(transClosure, 2, termSet->size(), staticGraph->getRoot(), termSet)->toString();
+    cout << staticGraph->alg4(transClosure, 2, termSet->size(), staticGraph->getRoot(), termSet)->toString();
+//    cout << staticGraph->alg3(transClosure, 2, termSet->size(), staticGraph->getRoot(), termSet)->toString();
 }
 
 typedef property<vertex_distance_t, float,
