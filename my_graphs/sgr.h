@@ -55,11 +55,18 @@ public:
 };
 
 class StaticGraph{
+    struct myEntry{
+        double key;
+        StaticVertex* value;
+    };
 protected:
     std::map<std::string,std::vector<StaticEdge*>*>* adj_list;
     std::set<StaticVertex*>* vertSet;
     StaticVertex* root; //
     std::map<std::string, StaticVertex*>* labelVert;
+
+    void putInOrder(std::vector<myEntry>* vec, myEntry entr);
+    int entrBinSearchOrNext(std::vector<myEntry>* vec, myEntry entr);
 public:
     StaticGraph();
 

@@ -395,21 +395,57 @@ Tree *StaticGraph::alg5(TransitiveClosure *tr_cl, int i, int k, StaticVertex *ro
             if (minCost != LONG_MAX)
                 treeC->add_edge(root, minVert, minCost);
             k--;
-            std::set<StaticVertex*>* oldX = new std::set<StaticVertex*>(X->begin(), X->end());
+            std::set<StaticVertex *> *oldX = new std::set<StaticVertex *>(X->begin(), X->end());
             X->erase(minVert);
-            if(first){
+            if (first) {
                 tree = treeC;
                 first = false;
             }
-            else{
-                if(tree->addEdgeWithCopy(e->getFrom(),e->getTo(), e->getWeight())->getDensity(oldX) >
-                        treeC->addEdgeWithCopy(e->getFrom(), e->getTo(), e->getWeight())->getDensity(oldX)){
+            else {
+                if (tree->addEdgeWithCopy(e->getFrom(), e->getTo(), e->getWeight())->getDensity(oldX) >
+                    treeC->addEdgeWithCopy(e->getFrom(), e->getTo(), e->getWeight())->getDensity(oldX)) {
                     tree = treeC;
                 }
             }
         }
     }
     return tree;
+}
+
+void StaticGraph::putInOrder(std::vector<StaticGraph::myEntry> *vec, StaticGraph::myEntry entr) {
+    if (vec->size() == 0) {
+        vec->insert(vec->begin(), entr);
+    }
+    else{
+        int iToPut = entrBinSearchOrNext(vec, entr);
+        vec->insert(vec->begin()+iToPut, entr);
+    }
+}
+
+int StaticGraph::entrBinSearchOrNext(std::vector<StaticGraph::myEntry> *vec, StaticGraph::myEntry entr) {
+    int low  = 0;
+    int high = vec->size()-1;
+
+    while( low <= high)
+    {
+        // To convert to Javascript:
+        // var mid = low + ((high - low) / 2) | 0;
+        int mid = low + ((high - low) / 2);
+
+        /**/ if ((*vec)[mid].key < entr.key) low  = mid + 1;
+        else if ((*vec)[mid].key > entr.key) high = mid - 1;
+        else return mid + 1;
+    }
+
+    if( high < 0 )
+        return 0;   // key < data[0]
+    else
+    if( low > (vec->size()-1))
+        return vec->size(); // key >= data[len-1]
+    else
+        return (low < high)
+               ? low  + 1
+               : high + 1;
 }
 
 Tree *StaticGraph::alg6(TransitiveClosure *tr_cl, int i, int k, StaticVertex *root, std::set<StaticVertex *> *X) {
@@ -434,35 +470,60 @@ Tree *StaticGraph::alg6(TransitiveClosure *tr_cl, int i, int k, StaticVertex *ro
     }
     else {
         std::map<Tree *, double> *den = new std::map<Tree *, double>();
+        bool first = true;
         while (k > 0) {
             Tree *treeBest = new Tree();
             (*den)[treeBest] = LONG_MAX;
-            for (StaticVertex *v : *tr_cl->getVertSet()) {
-                Tree *treeP = alg5(tr_cl, i - 1, k, v, new std::set<StaticVertex *>(X->begin(), X->end()),
-                                   tr_cl->hasEdge(root, v));
-                int size = X->size();
-                treeP->add_edge(root, v, tr_cl->costEdge(root, v));
-                int covered = 0; // how many terminals are covered
-                for (StaticVertex *v : *X) {
-                    if (treeP->getVertSet()->find(v) != treeP->getVertSet()->end())
-                        covered++;
-                }
-                double treePWeight = (double) treeP->getTotalWeight() / covered;
-                if ((*den)[treeBest] > treePWeight) {
 
-//                        std::cout << "Returned Tree rooted at" << v->getName() << "with density " <<
-//                        (double)treeP->getTotalWeight() << "/" << kp << " = " <<
-//                        (double)treeP->getTotalWeight()/kp << std::endl;
-//                        std::cout << treeP->toString();
-//                        std::cout << "\n";
 
-                    treeBest = treeP;
-                    (*den)[treeBest] = treePWeight;
-//                        std::cout << "The best is" << std::endl;
-//                        std::cout << treeP->toString() << std::endl;
-//                        std::cout << "with density " << treeP->getDensity() << std::endl;
+            //sorting vertices from vert set
+            std::map<StaticVertex*, double>* vert_den = new std::map<StaticVertex*, double>();
+            std::vector<myEntry>* sorted = new std::vector<myEntry>();
+            for (StaticVertex* v : (*tr_cl->getVertSet())){
+                if (v!=root) {
+                    StaticEdge *edge = tr_cl->hasEdge(root, v);
+                    auto new_x = new std::set<StaticVertex *>(X->begin(), X->end());
+                    Tree *t = alg5(tr_cl, i, k, root, new_x, edge);
+                    Tree *a_union = t->addEdgeWithCopy(edge->getFrom(), edge->getTo(), edge->getWeight());
+                    (*vert_den)[v] = a_union->getDensity(new_x);
+                    myEntry me;
+                    me.value = v;
+                    me.key = a_union->getDensity(new_x);
+                    putInOrder(sorted, me);
                 }
             }
+
+            //-----------------------------------------------------
+            if (first) {
+                for (StaticVertex *v : *vertSet) {
+                    StaticEdge* e = tr_cl->hasEdge(root, v);
+                    Tree *treeP = alg5(tr_cl, i - 1, k, v, new std::set<StaticVertex *>(X->begin(), X->end()),
+                                       e);
+                    int size = X->size();
+                    treeP->add_edge(root, v, e->getWeight());
+                    int covered = 0; // how many terminals are covered
+//                    for (StaticVertex *v1 : *X) {
+//                        if (treeP->getVertSet()->find(v1) != treeP->getVertSet()->end())
+//                            covered++;
+//                    }
+//                    double treePWeight = (double) treeP->getTotalWeight() / covered;
+                    double treePWeight = treeP->getDensity(X);
+                    if ((*den)[treeBest] > treePWeight) {
+                        treeBest = treeP;
+                        (*den)[treeBest] = treePWeight;
+                    }
+                    //TODO:put with sorting
+                    myEntry entry;
+                    entry.value = v;
+                    entry.key = treeP
+
+                }
+//                first = false;
+            }
+            else{
+
+            }
+            //-----------------------------------------------------
 //            std::cout << "Tree is:" << std::endl;
 //            std::cout << tree->toString() << std::endl;
 //            std::cout << "TBest is:" << std::endl;
@@ -639,7 +700,7 @@ long Tree::getTotalWeight() {
 double Tree::getDensity(std::set<StaticVertex *> *X) {
     int covered = 0;
     for (StaticVertex *v: *X) {
-        if (vertSet->find(v) != X->end())
+        if (vertSet->find(v) != vertSet->end())
             covered++;
     }
     return (double) getTotalWeight() / covered;

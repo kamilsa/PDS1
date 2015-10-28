@@ -140,8 +140,9 @@ void temp_graph_test() {
     termSet->insert(termSet->begin(), (*map)["4"]);
     termSet->insert(termSet->begin(), (*map)["5"]);
     cout << "Weight minimum spanning tree:" << endl;
-    cout << staticGraph->alg4(transClosure, 2, termSet->size(), staticGraph->getRoot(), termSet)->toString();
+//    cout << staticGraph->alg4(transClosure, 2, termSet->size(), staticGraph->getRoot(), termSet)->toString();
 //    cout << staticGraph->alg3(transClosure, 2, termSet->size(), staticGraph->getRoot(), termSet)->toString();
+    cout << staticGraph->alg6(transClosure, 2, termSet->size(), staticGraph->getRoot(), termSet)->toString();
 }
 
 typedef property<vertex_distance_t, float,
