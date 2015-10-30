@@ -12,7 +12,9 @@
 #include <map>
 #include <set>
 #include "sgr.h"
+#include <memory>
 
+using namespace std;
 
 class TempVertex;
 class TempEdge;
@@ -27,7 +29,7 @@ class TempGraph;
 class TempVertex {
 private:
     std::string name;
-    TempVertex *P;
+    shared_ptr<TempVertex> P;
     long A;
 
     /* list of tuples with start and arrival times sorted in non-decreasing order of their arrival time
@@ -43,9 +45,9 @@ public:
 
     void setName(std::string);
 
-    TempVertex *getP();
+    shared_ptr<TempVertex> getP();
 
-    void setP(TempVertex *P);
+    void setP(shared_ptr<TempVertex> P);
 
     long getA();
 
@@ -70,25 +72,27 @@ public:
  */
 class TempEdge {
 private:
-    TempVertex *source;
-    TempVertex *destination;
+    shared_ptr<TempVertex> source;
+//    TempVertex *source;
+    shared_ptr<TempVertex> destination;
+//    TempVertex *destination;
     long startTime;
     long arrTime;
     long weight;
 public:
-    TempEdge(TempVertex *source, TempVertex *destination, long startTime, long arrTime, long weight);
+    TempEdge(shared_ptr<TempVertex> source, shared_ptr<TempVertex> destination, long startTime, long arrTime, long weight);
 
     ~TempEdge();
 
-    TempVertex *getSource() const;
+    shared_ptr<TempVertex> getSource() const;
 
-    void setSource(TempVertex *source);
+    void setSource(shared_ptr<TempVertex> source);
 
-    TempVertex *getDestination() const {
+    shared_ptr<TempVertex> getDestination() const {
         return destination;
     }
 
-    void setDestination(TempVertex *destination);
+    void setDestination(shared_ptr<TempVertex> destination);
 
     long getStartTime() const;
 
@@ -117,7 +121,7 @@ class TempGraph{
 private:
 //    std::vector<TempVertex*>* vertList; // FIX: does not work properly
     enum sort_type{ASC, DESC};
-    std::set<TempVertex*>* vertSet;
+    std::set<shared_ptr<TempVertex>>* vertSet;
     std::vector<TempEdge*>* edgeList;
     std::map<std::string, std::vector<TempEdge *> *> *sal;
     void quicksort(std::vector<TempEdge*>* arr, int low, int high, sort_type type);
@@ -126,7 +130,7 @@ private:
 public:
     TempGraph();
     ~TempGraph();
-    void addEdge(TempVertex* from, TempVertex* to, int startTime, int arrTime);
+    void addEdge(shared_ptr<TempVertex> from, shared_ptr<TempVertex> to, int startTime, int arrTime);
     void addEdge(TempEdge* edge);
     std::string toString();
     std::vector<TempEdge*>* deriveSortedEdgeList(); // derive list of edges sorted by started time
@@ -135,7 +139,7 @@ public:
      *
      */
     void sortAdjacencyList(sort_type type);
-    std::set<TempVertex*>* getVertSet();
+    std::set<shared_ptr<TempVertex>>* getVertSet();
     /* construct time minimum spanning tree via assigning to each vertex its previous vertex and earliest arrival time
      * low_bound -- is the low time bound of observatin period
      * up_bound -- is the upper time bound of observation period
@@ -143,7 +147,7 @@ public:
      * adjacency list is already sorted and all we need is we just to go through each
      * list and get edges in order of their occurency
     */
-    void mst_a1(TempVertex* root, long low_bound, long up_bound, bool needToSort); // fill out A and P fields for each vertex.
+    void mst_a1(shared_ptr<TempVertex> root, long low_bound, long up_bound, bool needToSort); // fill out A and P fields for each vertex.
 
     /* constructs time minimum spanning tree using sorted adjacency list and assigning to each vertex corresponding
      * previous one and earliest arrival time
@@ -151,8 +155,8 @@ public:
      * up_bound -- is the upper time bound of observation period
      * sort -- defines if adjacency list is supposed to sort (it could be already sorted)
      */
-    void mst_a2(TempVertex* root,  long low_bound, long up_bound, bool sort);
+    void mst_a2(shared_ptr<TempVertex> root,  long low_bound, long up_bound, bool sort);
 
-    StaticGraph* getStaticGraph(TempVertex* root);
+    StaticGraph* getStaticGraph(shared_ptr<TempVertex> root);
 };
 #endif //PDS1_TGR_H

@@ -26,11 +26,11 @@ void TempVertex::setName(std::string string) {
     this->name = name;
 }
 
-TempVertex *TempVertex::getP() {
+shared_ptr<TempVertex> TempVertex::getP() {
     return this->P;
 }
 
-void TempVertex::setP(TempVertex *P) {
+void TempVertex::setP(shared_ptr<TempVertex> P) {
     this->P = P;
 }
 
@@ -77,7 +77,7 @@ int TempVertex::binarySearchOrNext(long target, int low, int high) {
 }
 
 //-----------------------------------------------------------------
-TempEdge::TempEdge(TempVertex *source, TempVertex *destination, long startTime, long arrTime, long weight) {
+TempEdge::TempEdge(shared_ptr<TempVertex> source, shared_ptr<TempVertex> destination, long startTime, long arrTime, long weight) {
     this->source = source;
     this->destination = destination;
     this->startTime = startTime;
@@ -85,15 +85,15 @@ TempEdge::TempEdge(TempVertex *source, TempVertex *destination, long startTime, 
     this->weight = weight;
 }
 
-TempVertex *TempEdge::getSource() const {
+shared_ptr<TempVertex> TempEdge::getSource() const {
     return source;
 }
 
-void TempEdge::setSource(TempVertex *source) {
+void TempEdge::setSource(shared_ptr<TempVertex> source) {
     TempEdge::source = source;
 }
 
-void TempEdge::setDestination(TempVertex *destination) {
+void TempEdge::setDestination(shared_ptr<TempVertex> destination) {
     TempEdge::destination = destination;
 }
 
@@ -122,14 +122,8 @@ void TempEdge::setWeight(long weight) {
 }
 
 TempEdge::~TempEdge() {
-    if (source != nullptr) {
-        delete source;
-        *(&source) = nullptr;
-    }
-    if (destination != nullptr) {
-        delete destination;
-        destination = nullptr;
-    }
+    source.reset();
+    destination.reset();
 }
 
 std::string TempEdge::toString() {
@@ -145,7 +139,7 @@ std::string TempEdge::toString() {
 //-----------------------------------------------------------------
 TempGraph::TempGraph() {
     this->edgeList = new std::vector<TempEdge *>();
-    this->vertSet = new std::set<TempVertex *>();
+    this->vertSet = new std::set<shared_ptr<TempVertex> >();
     this->sal = new std::map<std::string, std::vector<TempEdge *> *>();
 }
 
@@ -161,7 +155,7 @@ TempGraph::~TempGraph(){
     delete sal;
 }
 
-void TempGraph::addEdge(TempVertex *from, TempVertex *to, int startTime, int arrTime) {
+void TempGraph::addEdge(shared_ptr<TempVertex> from, shared_ptr<TempVertex> to, int startTime, int arrTime) {
     if ((*sal)[from->getName()] == 0x00) {
         vertSet->insert(from);
         (*sal)[from->getName()] = new std::vector<TempEdge *>();
@@ -180,8 +174,8 @@ void TempGraph::addEdge(TempVertex *from, TempVertex *to, int startTime, int arr
 }
 
 void TempGraph::addEdge(TempEdge *edge) {
-    TempVertex *from = edge->getSource();
-    TempVertex *to = edge->getDestination();
+    shared_ptr<TempVertex> from = edge->getSource();
+    shared_ptr<TempVertex> to = edge->getDestination();
     if ((*sal)[from->getName()] == 0x00) {
         vertSet->insert(from);
         (*sal)[from->getName()] = new std::vector<TempEdge *>();
@@ -260,7 +254,7 @@ void TempGraph::swap(std::vector<TempEdge *> *arr, int i1, int i2) {
     (*arr)[i2] = temp;
 }
 
-void TempGraph::mst_a1(TempVertex *root, long low_bound, long up_bound, bool need) {
+void TempGraph::mst_a1(shared_ptr<TempVertex> root, long low_bound, long up_bound, bool need) {
     std::vector<TempEdge *> *edges;
     if (need) {
         edges = deriveSortedEdgeList();
@@ -274,7 +268,7 @@ void TempGraph::mst_a1(TempVertex *root, long low_bound, long up_bound, bool nee
         }
     }
 
-    for (TempVertex *v : (*vertSet)) {
+    for (shared_ptr<TempVertex> v : (*vertSet)) {
         if (v != root) {
             v->setA(LONG_MAX);
             v->setP(root);
@@ -287,8 +281,8 @@ void TempGraph::mst_a1(TempVertex *root, long low_bound, long up_bound, bool nee
     }
 
     for (TempEdge *e : *edges) {
-        TempVertex *u = e->getSource();
-        TempVertex *v = e->getDestination();
+        shared_ptr<TempVertex> u = e->getSource();
+        shared_ptr<TempVertex> v = e->getDestination();
         long start_time = e->getStartTime();
         long arr_time = e->getArrTime();
 
@@ -299,26 +293,26 @@ void TempGraph::mst_a1(TempVertex *root, long low_bound, long up_bound, bool nee
     }
 }
 
-std::set<TempVertex *> *TempGraph::getVertSet() {
+std::set<shared_ptr<TempVertex> > *TempGraph::getVertSet() {
     return vertSet;
 }
 
-void TempGraph::mst_a2(TempVertex *root, long low_bound, long up_bound, bool sort) {
+void TempGraph::mst_a2(shared_ptr<TempVertex> root, long low_bound, long up_bound, bool sort) {
     if (sort) {
         sortAdjacencyList(DESC);
     }
     std::cout << toString() << std::endl;
     struct mytuple {
-        TempVertex *v1;
-        TempVertex *v2;
+        shared_ptr<TempVertex> v1;
+        shared_ptr<TempVertex> v2;
         long time;
     };
 
-    std::map<TempVertex *, int> pos;
+    std::map<shared_ptr<TempVertex> , int> pos;
 
 
     //initial step
-    for (TempVertex *u : (*vertSet)) {
+    for (shared_ptr<TempVertex> u : (*vertSet)) {
         pos[u] = 0;
         u->setA(LONG_MAX);
     }
@@ -331,8 +325,8 @@ void TempGraph::mst_a2(TempVertex *root, long low_bound, long up_bound, bool sor
     while (!st->empty()) {
         mytuple tup = st->top();
         st->pop();
-        TempVertex *u = tup.v1;
-        TempVertex *v = tup.v2;
+        shared_ptr<TempVertex> u = tup.v1;
+        shared_ptr<TempVertex> v = tup.v2;
         long tav = tup.time; // t arrival v
         if (tav < v->getA()) {
             v->setA(tav);
@@ -341,7 +335,7 @@ void TempGraph::mst_a2(TempVertex *root, long low_bound, long up_bound, bool sor
             if (pos[v] < edge_list->size()) {
                 TempEdge *e = (*edge_list)[pos[v]];
                 v = e->getSource();
-                TempVertex *vp = e->getDestination();
+                shared_ptr<TempVertex> vp = e->getDestination();
                 long start = e->getStartTime();
                 long arr = e->getArrTime();
                 while (pos[v] < edge_list->size() && v->getA() <= start) {
@@ -371,7 +365,7 @@ void TempGraph::sortAdjacencyList(TempGraph::sort_type type) {
     }
 };
 
-StaticGraph *TempGraph::getStaticGraph(TempVertex *root) {
+StaticGraph *TempGraph::getStaticGraph(shared_ptr<TempVertex> root) {
     //triple of vertex and its corresponding arrival time, and weight of in-edge
     struct Triple {
         long corArrTime;
@@ -381,10 +375,10 @@ StaticGraph *TempGraph::getStaticGraph(TempVertex *root) {
 
     StaticGraph *st = new StaticGraph();
 
-    std::map<TempVertex *, std::vector<Triple *> *> *vert_times = new std::map<TempVertex *, std::vector<Triple *> *>();
+    std::map<shared_ptr<TempVertex> , std::vector<Triple *> *> *vert_times = new std::map<shared_ptr<TempVertex> , std::vector<Triple *> *>();
 
     //first part -- creating vertexes
-    for (TempVertex *v : *vertSet) {
+    for (shared_ptr<TempVertex> v : *vertSet) {
         (*vert_times)[v] = new std::vector<Triple *>();
         std::vector<Triple *> *vect = (*vert_times)[v];
         if (v != root) {
@@ -428,8 +422,8 @@ StaticGraph *TempGraph::getStaticGraph(TempVertex *root) {
         std::vector<TempEdge *> *t_edges = it1->second;
         for (int i = 0; i < t_edges->size(); i++) {
             TempEdge *t_edge = (*t_edges)[i];
-            TempVertex *u = t_edge->getSource(); // source vertex
-            TempVertex *v = t_edge->getDestination(); // destination vertex
+            shared_ptr<TempVertex> u = t_edge->getSource(); // source vertex
+            shared_ptr<TempVertex> v = t_edge->getDestination(); // destination vertex
             std::vector<Triple *> *uPairs = (*vert_times)[u];
             std::vector<Triple *> *vPairs = (*vert_times)[v];
 
