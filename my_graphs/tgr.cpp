@@ -122,8 +122,14 @@ void TempEdge::setWeight(long weight) {
 }
 
 TempEdge::~TempEdge() {
-    delete source;
-    delete destination;
+    if (source != nullptr) {
+        delete source;
+        *(&source) = nullptr;
+    }
+    if (destination != nullptr) {
+        delete destination;
+        destination = nullptr;
+    }
 }
 
 std::string TempEdge::toString() {
@@ -141,6 +147,18 @@ TempGraph::TempGraph() {
     this->edgeList = new std::vector<TempEdge *>();
     this->vertSet = new std::set<TempVertex *>();
     this->sal = new std::map<std::string, std::vector<TempEdge *> *>();
+}
+
+TempGraph::~TempGraph(){
+    delete edgeList;
+    delete vertSet;
+    for (auto it1 = sal->begin(); it1 != sal->end(); it1++){
+        for (auto edge : *it1->second){
+            delete edge;
+        }
+        delete(it1->second);
+    }
+    delete sal;
 }
 
 void TempGraph::addEdge(TempVertex *from, TempVertex *to, int startTime, int arrTime) {
@@ -183,13 +201,10 @@ std::string TempGraph::toString() {
     for (auto it1 = sal->begin(); it1 != sal->end(); it1++) {
         auto temp_list = it1->second;
         if (!temp_list->empty()) {
-//            std::cout << (*temp_list)[0]->getSource()->getName() << ": ";
             res += (*temp_list)[0]->getSource()->getName() + ": ";
             for (auto el : *temp_list) {
-//                std::cout << el->getDestination()->getName() << ", ";
                 res += el->toString() + ", ";
             }
-//            std::cout << std::endl;
             res += "\n";
         }
     }
@@ -259,16 +274,6 @@ void TempGraph::mst_a1(TempVertex *root, long low_bound, long up_bound, bool nee
         }
     }
 
-//    for (int i = 0; i < vertList->size(); i++) {
-//        if ((*vertList)[i] != root) {
-//            (*vertList)[i]->setA(LONG_MAX);
-//            (*vertList)[i]->setP(root);
-//        }
-//        else {
-//            root->setA(low_bound);
-//            root->setP(nullptr);
-//        }
-//    }
     for (TempVertex *v : (*vertSet)) {
         if (v != root) {
             v->setA(LONG_MAX);
@@ -400,8 +405,8 @@ StaticGraph *TempGraph::getStaticGraph(TempVertex *root) {
             vect->insert(vect->end(), pair1);
 
             for (int i = 0; i < vect->size() - 1; i++) {
-                StaticVertex *from = (*vect)[i]->staticVertex;
-                StaticVertex *to = (*vect)[i + 1]->staticVertex;
+                StaticVertex *from = new StaticVertex((*vect)[i]->staticVertex);
+                StaticVertex *to = new StaticVertex((*vect)[i + 1]->staticVertex);
                 st->add_edge(from, to, 0);
             }
         }
@@ -456,6 +461,13 @@ StaticGraph *TempGraph::getStaticGraph(TempVertex *root) {
         }
     }
 
+    for (auto it1 = vert_times->begin(); it1 != vert_times->end(); it1++){
+        auto tr_list = it1->second;
+        for (auto triple : *tr_list){
+            delete(triple);
+        }
+        delete(tr_list);
+    }
     delete vert_times;
     return st;
 }

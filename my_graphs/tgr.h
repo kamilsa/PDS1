@@ -125,7 +125,7 @@ private:
     void swap(std::vector<TempEdge*>* arr, int i1, int i2);
 public:
     TempGraph();
-
+    ~TempGraph();
     void addEdge(TempVertex* from, TempVertex* to, int startTime, int arrTime);
     void addEdge(TempEdge* edge);
     std::string toString();

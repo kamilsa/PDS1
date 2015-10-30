@@ -27,6 +27,10 @@ private:
 public:
     StaticVertex(std::string name);
 
+    StaticVertex(StaticVertex* v);
+
+    ~StaticVertex();
+
     std::string getName();
 
     void setName(std::string name);
@@ -39,6 +43,9 @@ private:
     long weight;
 public:
     StaticEdge(StaticVertex* from, StaticVertex* to, long weight);
+
+    ~StaticEdge();
+
     long getWeight();
 
     void setWeight(long weight);
@@ -56,7 +63,7 @@ public:
 
 class StaticGraph{
     struct myEntry{
-        double key;
+        double density;
         StaticVertex* value;
     };
 protected:
@@ -65,8 +72,8 @@ protected:
     StaticVertex* root; //
     std::map<std::string, StaticVertex*>* labelVert;
 
-    void putInOrder(std::vector<myEntry>* vec, myEntry entr);
-    int entrBinSearchOrNext(std::vector<myEntry>* vec, myEntry entr);
+    void putInOrder(std::vector<myEntry*>* vec, myEntry* entr);
+    int entrBinSearchOrNext(std::vector<myEntry*>* vec, myEntry* entr);
 public:
     StaticGraph();
 
@@ -106,6 +113,8 @@ public:
     virtual Tree* alg5(TransitiveClosure* tr_cl, int i, int k, StaticVertex* root, std::set<StaticVertex*>* X, StaticEdge* e);
 
     virtual Tree* alg6(TransitiveClosure* tr_cl, int i, int k, StaticVertex* root, std::set<StaticVertex*>* X);
+
+    virtual Tree* alg7(TransitiveClosure* tr_cl, int i, int k, StaticVertex* root, std::set<StaticVertex*>* X, StaticEdge* e);
 };
 
 /*
@@ -158,7 +167,7 @@ public:
 
     Tree(Tree* tree);
 
-    virtual ~Tree();
+//    virtual ~Tree();
 
     virtual StaticVertex *getRoot() override;
 
@@ -171,7 +180,7 @@ public:
     virtual void add_edge(StaticVertex *from, StaticVertex *to, long weight) override;
 
     /*returns the created tree after adding new edge*/
-    Tree* addEdgeWithCopy(StaticVertex *from, StaticVertex*to, long weight);
+    Tree* addEdgeWithCopy(StaticVertex* from, StaticVertex*to, long weight);
 
     virtual void remove_edge(StaticVertex *from, StaticVertex *to) override;
 

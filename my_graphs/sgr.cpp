@@ -12,6 +12,13 @@ StaticVertex::StaticVertex(std::string name) {
     this->name = name;
 }
 
+StaticVertex::StaticVertex(StaticVertex *v) {
+    this->name = v->name;
+}
+
+StaticVertex::~StaticVertex(){
+}
+
 std::string StaticVertex::getName() {
     return name;
 }
@@ -35,6 +42,11 @@ StaticEdge::StaticEdge(StaticVertex *from, StaticVertex *to, long weight) {
     this->from = from;
     this->to = to;
     this->weight = weight;
+}
+
+StaticEdge::~StaticEdge() {
+//    delete(from);
+//    delete(to);
 }
 
 long StaticEdge::getWeight() {
@@ -81,7 +93,16 @@ StaticGraph::StaticGraph(StaticGraph *g) {
 }
 
 StaticGraph::~StaticGraph() {
+    for (auto it1 = adj_list->begin(); it1 != adj_list->end(); it1++){
+        auto edge_list = it1->second;
+        for (auto edge : *edge_list){
+            delete(edge);
+        }
+        delete(edge_list);
+    }
     delete this->adj_list;
+    for (auto vert : *vertSet)
+        delete(vert);
     delete this->vertSet;
     delete this->labelVert;
 }
@@ -204,8 +225,11 @@ TransitiveClosure *StaticGraph::transitiveClosure() {
     for (StaticVertex *u : *vertSet) {
         auto shortDists = dijkstra(u); // shortest distance from u to other nodes, infinity defines unreachable nodes
         for (StaticVertex *v : *vertSet) {
-            if ((*shortDists)[v] != LONG_MAX)
-                trcl->add_edge(u, v, (*shortDists)[v]);
+            if ((*shortDists)[v] != LONG_MAX) {
+                StaticVertex *new_u = new StaticVertex(u);
+                StaticVertex *new_v = new StaticVertex(v);
+                trcl->add_edge(new_u, new_v, (*shortDists)[v]);
+            }
         }
     }
     return trcl;
@@ -248,48 +272,16 @@ Tree *StaticGraph::alg3(TransitiveClosure *tr_cl, int i, int k, StaticVertex *ro
                     }
                     double treePWeight = (double) treeP->getTotalWeight() / covered;
                     if ((*den)[treeBest] > treePWeight) {
-
-//                        std::cout << "Returned Tree rooted at" << v->getName() << "with density " <<
-//                        (double)treeP->getTotalWeight() << "/" << kp << " = " <<
-//                        (double)treeP->getTotalWeight()/kp << std::endl;
-//                        std::cout << treeP->toString();
-//                        std::cout << "\n";
-
                         treeBest = treeP;
                         (*den)[treeBest] = treePWeight;
-//                        std::cout << "The best is" << std::endl;
-//                        std::cout << treeP->toString() << std::endl;
-//                        std::cout << "with density " << treeP->getDensity() << std::endl;
                     }
                 }
             }
-//            std::cout << "Tree is:" << std::endl;
-//            std::cout << tree->toString() << std::endl;
-//            std::cout << "TBest is:" << std::endl;
-//            std::cout << treeBest->toString();
             tree = Tree::merge(tree, treeBest); // TODO costly
-//            std::cout << "Merged: " << std::endl;
-//            std::cout << tree->toString() << std::endl;
-//            std::cout << "X set:" << std::endl;
-//            for (StaticVertex *v : *X) {
-//                std::cout << v->getName() << std::endl;
-//            std::cout << "vert set:" << std::endl;
-//            for (StaticVertex *v : *treeBest->getVertSet()) {
-//                std::cout << v->getName() << std::endl;
-//            }
             std::set<StaticVertex *> *intersect = vert_intersect(X, treeBest->getVertSet());
-//            std::cout << "Intersection:" << std::endl;
-//            for (StaticVertex *v : *intersect) {
-//                std::cout << v->getName() << std::endl;
-//            }
             k -= intersect->size();
-//            std::cout << "k = " << k << std::endl;
             X = vert_minus(X, treeBest->getVertSet());
-//            std::cout << "X after:" << std::endl;
-//            for (StaticVertex *v : *X) {
-//                std::cout << v->getName() << std::endl;
         }
-//            std::cout << "----------------------------------" << std::endl;
     }
     return tree;
 }
@@ -331,47 +323,15 @@ Tree *StaticGraph::alg4(TransitiveClosure *tr_cl, int i, int k, StaticVertex *ro
                 }
                 double treePWeight = (double) treeP->getTotalWeight() / covered;
                 if ((*den)[treeBest] > treePWeight) {
-
-//                        std::cout << "Returned Tree rooted at" << v->getName() << "with density " <<
-//                        (double)treeP->getTotalWeight() << "/" << kp << " = " <<
-//                        (double)treeP->getTotalWeight()/kp << std::endl;
-//                        std::cout << treeP->toString();
-//                        std::cout << "\n";
-
                     treeBest = treeP;
                     (*den)[treeBest] = treePWeight;
-//                        std::cout << "The best is" << std::endl;
-//                        std::cout << treeP->toString() << std::endl;
-//                        std::cout << "with density " << treeP->getDensity() << std::endl;
                 }
             }
-//            std::cout << "Tree is:" << std::endl;
-//            std::cout << tree->toString() << std::endl;
-//            std::cout << "TBest is:" << std::endl;
-//            std::cout << treeBest->toString();
             tree = Tree::merge(tree, treeBest);
-//            std::cout << "Merged: " << std::endl;
-//            std::cout << tree->toString() << std::endl;
-//            std::cout << "X set:" << std::endl;
-//            for (StaticVertex *v : *X) {
-//                std::cout << v->getName() << std::endl;
-//            std::cout << "vert set:" << std::endl;
-//            for (StaticVertex *v : *treeBest->getVertSet()) {
-//                std::cout << v->getName() << std::endl;
-//            }
             std::set<StaticVertex *> *intersect = vert_intersect(X, treeBest->getVertSet());
-//            std::cout << "Intersection:" << std::endl;
-//            for (StaticVertex *v : *intersect) {
-//                std::cout << v->getName() << std::endl;
-//            }
             k -= intersect->size();
-//            std::cout << "k = " << k << std::endl;
             X = vert_minus(X, treeBest->getVertSet());
-//            std::cout << "X after:" << std::endl;
-//            for (StaticVertex *v : *X) {
-//                std::cout << v->getName() << std::endl;
         }
-//            std::cout << "----------------------------------" << std::endl;
     }
     return tree;
 }
@@ -407,44 +367,77 @@ Tree *StaticGraph::alg5(TransitiveClosure *tr_cl, int i, int k, StaticVertex *ro
                     tree = treeC;
                 }
             }
+            delete(oldX);
+        }
+    }
+    else {
+        std::map<Tree *, double> *den = new std::map<Tree *, double>();
+        while (k > 0) {
+            Tree *treeBest = new Tree();
+            (*den)[treeBest] = LONG_MAX;
+            for (StaticVertex *v : *tr_cl->getVertSet()) {
+                Tree *treeP = alg5(tr_cl, i - 1, k, v, new std::set<StaticVertex *>(X->begin(), X->end()),
+                                   tr_cl->hasEdge(root, v));
+                treeP->add_edge(root, v, tr_cl->costEdge(root, v));
+                double treePWeight = treeP->getDensity(X);
+                if ((*den)[treeBest] > treePWeight) {
+                    treeBest = treeP;
+                    (*den)[treeBest] = treePWeight;
+                }
+            }
+            treeC = Tree::merge(treeC, treeBest);
+            std::set<StaticVertex *> *intersect = vert_intersect(X, treeBest->getVertSet());
+            k -= intersect->size();
+            X = vert_minus(X, treeBest->getVertSet());
+
+            std::set<StaticVertex *> *oldX = new std::set<StaticVertex *>(X->begin(), X->end());
+            if (first) {
+                tree = treeC;
+                first = false;
+            }
+            else {
+                if (tree->addEdgeWithCopy(e->getFrom(), e->getTo(), e->getWeight())->getDensity(oldX) >
+                    treeC->addEdgeWithCopy(e->getFrom(), e->getTo(), e->getWeight())->getDensity(oldX)) {
+                    tree = treeC;
+                }
+            }
+            delete(oldX);
         }
     }
     return tree;
 }
 
-void StaticGraph::putInOrder(std::vector<StaticGraph::myEntry> *vec, StaticGraph::myEntry entr) {
+void StaticGraph::putInOrder(std::vector<StaticGraph::myEntry*> *vec, StaticGraph::myEntry* entr) {
     if (vec->size() == 0) {
         vec->insert(vec->begin(), entr);
     }
-    else{
+    else {
         int iToPut = entrBinSearchOrNext(vec, entr);
-        vec->insert(vec->begin()+iToPut, entr);
+        vec->insert(vec->begin() + iToPut, entr);
     }
 }
 
-int StaticGraph::entrBinSearchOrNext(std::vector<StaticGraph::myEntry> *vec, StaticGraph::myEntry entr) {
-    int low  = 0;
-    int high = vec->size()-1;
+int StaticGraph::entrBinSearchOrNext(std::vector<StaticGraph::myEntry*> *vec, StaticGraph::myEntry* entr) {
+    int low = 0;
+    int high = vec->size() - 1;
 
-    while( low <= high)
-    {
+    while (low <= high) {
         // To convert to Javascript:
         // var mid = low + ((high - low) / 2) | 0;
         int mid = low + ((high - low) / 2);
 
-        /**/ if ((*vec)[mid].key < entr.key) low  = mid + 1;
-        else if ((*vec)[mid].key > entr.key) high = mid - 1;
+        /**/ if ((*vec)[mid]->density < entr->density) low = mid + 1;
+        else if ((*vec)[mid]->density > entr->density) high = mid - 1;
         else return mid + 1;
     }
 
-    if( high < 0 )
+    if (high < 0)
         return 0;   // key < data[0]
-    else
-    if( low > (vec->size()-1))
+    else if (low > (vec->size() - 1))
         return vec->size(); // key >= data[len-1]
     else
         return (low < high)
-               ? low  + 1
+               ? low + 1
                : high + 1;
 }
 
@@ -471,86 +464,174 @@ Tree *StaticGraph::alg6(TransitiveClosure *tr_cl, int i, int k, StaticVertex *ro
     else {
         std::map<Tree *, double> *den = new std::map<Tree *, double>();
         bool first = true;
+        std::vector<myEntry*> *sorted = new std::vector<myEntry*>();
         while (k > 0) {
             Tree *treeBest = new Tree();
             (*den)[treeBest] = LONG_MAX;
 
-
-            //sorting vertices from vert set
-            std::map<StaticVertex*, double>* vert_den = new std::map<StaticVertex*, double>();
-            std::vector<myEntry>* sorted = new std::vector<myEntry>();
-            for (StaticVertex* v : (*tr_cl->getVertSet())){
-                if (v!=root) {
-                    StaticEdge *edge = tr_cl->hasEdge(root, v);
-                    auto new_x = new std::set<StaticVertex *>(X->begin(), X->end());
-                    Tree *t = alg5(tr_cl, i, k, root, new_x, edge);
-                    Tree *a_union = t->addEdgeWithCopy(edge->getFrom(), edge->getTo(), edge->getWeight());
-                    (*vert_den)[v] = a_union->getDensity(new_x);
-                    myEntry me;
-                    me.value = v;
-                    me.key = a_union->getDensity(new_x);
-                    putInOrder(sorted, me);
-                }
-            }
-
             //-----------------------------------------------------
             if (first) {
                 for (StaticVertex *v : *vertSet) {
-                    StaticEdge* e = tr_cl->hasEdge(root, v);
-                    Tree *treeP = alg5(tr_cl, i - 1, k, v, new std::set<StaticVertex *>(X->begin(), X->end()),
+                    StaticEdge *e = tr_cl->hasEdge(root, v);
+                    Tree *treeP = alg7(tr_cl, i - 1, k, v, new std::set<StaticVertex *>(X->begin(), X->end()),
                                        e);
-                    int size = X->size();
                     treeP->add_edge(root, v, e->getWeight());
-                    int covered = 0; // how many terminals are covered
-//                    for (StaticVertex *v1 : *X) {
-//                        if (treeP->getVertSet()->find(v1) != treeP->getVertSet()->end())
-//                            covered++;
-//                    }
-//                    double treePWeight = (double) treeP->getTotalWeight() / covered;
                     double treePWeight = treeP->getDensity(X);
                     if ((*den)[treeBest] > treePWeight) {
                         treeBest = treeP;
                         (*den)[treeBest] = treePWeight;
                     }
                     //TODO:put with sorting
-                    myEntry entry;
-                    entry.value = v;
-                    entry.key = treeP
-
+                    myEntry* entry = new myEntry;
+                    entry->value = v;
+                    entry->density = treePWeight;
+                    putInOrder(sorted, entry);
                 }
-//                first = false;
+                first = false;
+            }
+            else {
+                double t_best = LONG_MAX;
+                for (myEntry* entry : *sorted) {
+                    StaticVertex *v = entry->value;
+                    if (entry->density < t_best) {
+                        StaticEdge *e = tr_cl->hasEdge(root, v);
+                        Tree *treeP = alg7(tr_cl, i - 1, k, v, new std::set<StaticVertex *>(X->begin(), X->end()),
+                                           e);
+                        treeP->add_edge(root, v, e->getWeight());
+                        double treePWeight = treeP->getDensity(X);
+                        if ((*den)[treeBest] > treePWeight){
+                            treeBest = treeP;
+                            (*den)[treeBest] = treePWeight;
+                        }
+                        entry->density = treePWeight;
+                        if (treePWeight < t_best)
+                            t_best = treePWeight;
+                    }
+                    else{
+                        std::vector<myEntry*>* temp = new std::vector<myEntry*>();
+                        for (int j = 0; j < sorted->size(); j++){
+                            myEntry* e = (*sorted)[j];
+                            putInOrder(temp, e);
+                        }
+                        delete(sorted);
+                        sorted = temp;
+                        break;
+                    }
+                }
+            }
+            tree = Tree::merge(tree, treeBest);
+            std::set<StaticVertex *> *intersect = vert_intersect(X, treeBest->getVertSet());
+            k -= intersect->size();
+            X = vert_minus(X, treeBest->getVertSet());
+        }
+    }
+    return tree;
+}
+
+Tree *StaticGraph::alg7(TransitiveClosure *tr_cl, int i, int k, StaticVertex *root, std::set<StaticVertex *> *X,
+                        StaticEdge *e) {
+    Tree *tree = new Tree();
+    Tree *treeC = new Tree();
+    bool first = true;
+    if (i == 1) {
+        while (k > 0) {
+            long minCost = LONG_MAX;
+            StaticVertex *minVert;// vert with lighter-weight total path from root
+            for (StaticVertex *v : *X) { // by now finding minVert too costly, could be improved
+                long cost = tr_cl->costEdge(root, v); // O(N) method -- too costly as well
+                if (cost < minCost) {
+                    minCost = cost;
+                    minVert = v;
+                }
+            }
+            if (minCost != LONG_MAX)
+                treeC->add_edge(root, minVert, minCost);
+            k--;
+            std::set<StaticVertex *> *oldX = new std::set<StaticVertex *>(X->begin(), X->end());
+            X->erase(minVert);
+            if (first) {
+                tree = treeC;
+                first = false;
+            }
+            else {
+                if (tree->addEdgeWithCopy(e->getFrom(), e->getTo(), e->getWeight())->getDensity(oldX) >
+                    treeC->addEdgeWithCopy(e->getFrom(), e->getTo(), e->getWeight())->getDensity(oldX)) {
+                    tree = treeC;
+                }
+            }
+        }
+    }
+    else {
+        std::map<Tree *, double> *den = new std::map<Tree *, double>();
+        std::vector<myEntry*>* sorted = new std::vector<myEntry*>();
+        while (k > 0) {
+            Tree *treeBest = new Tree();
+            (*den)[treeBest] = LONG_MAX;
+            if (first) {
+                for (StaticVertex *v : *tr_cl->getVertSet()) {
+                    Tree *treeP = alg7(tr_cl, i - 1, k, v, new std::set<StaticVertex *>(X->begin(), X->end()),
+                                       tr_cl->hasEdge(root, v));
+                    treeP->add_edge(root, v, tr_cl->costEdge(root, v));
+                    double treePWeight = treeP->getDensity(X);
+                    if ((*den)[treeBest] > treePWeight) {
+                        treeBest = treeP;
+                        (*den)[treeBest] = treePWeight;
+                    }
+                    myEntry *entry = new myEntry;
+                    entry->value = v;
+                    entry->density = treePWeight;
+                    putInOrder(sorted, entry);
+                }
+                first = false;
             }
             else{
-
+                double t_best = LONG_MAX;
+                for (myEntry* entry : *sorted) {
+                    StaticVertex *v = entry->value;
+                    if (entry->density < t_best) {
+                        StaticEdge *e = tr_cl->hasEdge(root, v);
+                        Tree *treeP = alg7(tr_cl, i - 1, k, v, new std::set<StaticVertex *>(X->begin(), X->end()),
+                                           e);
+                        treeP->add_edge(root, v, e->getWeight());
+                        double treePWeight = treeP->getDensity(X);
+                        if ((*den)[treeBest] > treePWeight){
+                            treeBest = treeP;
+                            (*den)[treeBest] = treePWeight;
+                        }
+                        entry->density = treePWeight;
+                        if (treePWeight < t_best)
+                            t_best = treePWeight;
+                    }
+                    else{
+                        std::vector<myEntry*>* temp = new std::vector<myEntry*>();
+                        for (int j = 0; j < sorted->size(); j++){
+                            myEntry* e = (*sorted)[j];
+                            putInOrder(temp, e);
+                        }
+                        delete(sorted);
+                        sorted = temp;
+                        break;
+                    }
+                }
             }
-            //-----------------------------------------------------
-//            std::cout << "Tree is:" << std::endl;
-//            std::cout << tree->toString() << std::endl;
-//            std::cout << "TBest is:" << std::endl;
-//            std::cout << treeBest->toString();
-            tree = Tree::merge(tree, treeBest);
-//            std::cout << "Merged: " << std::endl;
-//            std::cout << tree->toString() << std::endl;
-//            std::cout << "X set:" << std::endl;
-//            for (StaticVertex *v : *X) {
-//                std::cout << v->getName() << std::endl;
-//            std::cout << "vert set:" << std::endl;
-//            for (StaticVertex *v : *treeBest->getVertSet()) {
-//                std::cout << v->getName() << std::endl;
-//            }
+            treeC = Tree::merge(treeC, treeBest);
             std::set<StaticVertex *> *intersect = vert_intersect(X, treeBest->getVertSet());
-//            std::cout << "Intersection:" << std::endl;
-//            for (StaticVertex *v : *intersect) {
-//                std::cout << v->getName() << std::endl;
-//            }
             k -= intersect->size();
-//            std::cout << "k = " << k << std::endl;
             X = vert_minus(X, treeBest->getVertSet());
-//            std::cout << "X after:" << std::endl;
-//            for (StaticVertex *v : *X) {
-//                std::cout << v->getName() << std::endl;
+
+            std::set<StaticVertex *> *oldX = new std::set<StaticVertex *>(X->begin(), X->end());
+            if (first) {
+                tree = treeC;
+                first = false;
+            }
+            else {
+                if (tree->addEdgeWithCopy(e->getFrom(), e->getTo(), e->getWeight())->getDensity(oldX) >
+                    treeC->addEdgeWithCopy(e->getFrom(), e->getTo(), e->getWeight())->getDensity(oldX)) {
+                    tree = treeC;
+                }
+            }
+            delete(oldX);
         }
-//            std::cout << "----------------------------------" << std::endl;
     }
     return tree;
 }
@@ -650,9 +731,9 @@ Tree::Tree(Tree *tree) {
     totalWeight = 0;
 }
 
-Tree::~Tree() {
-    StaticGraph::~StaticGraph();
-}
+//Tree::~Tree() {
+//    StaticGraph::~StaticGraph();
+//}
 
 StaticVertex *Tree::getRoot() {
     return StaticGraph::getRoot();

@@ -32,7 +32,10 @@ void set_test();
 int main() {
 //    static_graph_test();
         auto start = std::chrono::high_resolution_clock::now();
-        temp_graph_test();
+        for (int i = 0; i < 1000; i++) {
+            temp_graph_test();
+            cout << "iteration # " << i << endl;
+        }
 //        set_test();
         auto finish = std::chrono::high_resolution_clock::now();
         cout << "Execution time : " << std::chrono::duration_cast<std::chrono::nanoseconds>(finish-start).count();
@@ -100,7 +103,7 @@ void static_graph_test() {
 }
 
 void temp_graph_test() {
-    TempGraph *g = new TempGraph();
+    TempGraph *temp_graph = new TempGraph();
 
     TempVertex *v0 = new TempVertex("0");
     TempVertex *v1 = new TempVertex("1");
@@ -109,27 +112,27 @@ void temp_graph_test() {
     TempVertex *v4 = new TempVertex("4");
     TempVertex *v5 = new TempVertex("5");
 
-    g->addEdge(new TempEdge(v0, v1, 1, 3, 2));
-    g->addEdge(new TempEdge(v0, v2, 1, 5, 4));
-    g->addEdge(new TempEdge(v0, v2, 3, 6, 3));
-    g->addEdge(new TempEdge(v0, v1, 4, 5, 1));
-    g->addEdge(new TempEdge(v1, v3, 4, 6, 2));
-    g->addEdge(new TempEdge(v1, v4, 5, 8, 3));
-    g->addEdge(new TempEdge(v2, v5, 6, 8, 2));
-    g->addEdge(new TempEdge(v2, v4, 7, 9, 2));
-    g->addEdge(new TempEdge(v4, v0, 8, 9, 1));
+    temp_graph->addEdge(new TempEdge(v0, v1, 1, 3, 2));
+    temp_graph->addEdge(new TempEdge(v0, v2, 1, 5, 4));
+    temp_graph->addEdge(new TempEdge(v0, v2, 3, 6, 3));
+    temp_graph->addEdge(new TempEdge(v0, v1, 4, 5, 1));
+    temp_graph->addEdge(new TempEdge(v1, v3, 4, 6, 2));
+    temp_graph->addEdge(new TempEdge(v1, v4, 5, 8, 3));
+    temp_graph->addEdge(new TempEdge(v2, v5, 6, 8, 2));
+    temp_graph->addEdge(new TempEdge(v2, v4, 7, 9, 2));
+    temp_graph->addEdge(new TempEdge(v4, v0, 8, 9, 1));
 
-    g->mst_a2(v0, 0, LONG_MAX, true);
-    for (TempVertex *v : *g->getVertSet()) {
-        if (v != v0)
-            cout << "P(" << v->getName() << ") = " << v->getP()->getName() << " A(" << v->getName() << ") = " <<
-            v->getA() << endl;
-    }
-    cout << "It was from class" << endl;
+//    temp_graph->mst_a2(v0, 0, LONG_MAX, true);
+//    for (TempVertex *v : *temp_graph->getVertSet()) {
+//        if (v != v0)
+//            cout << "P(" << v->getName() << ") = " << v->getP()->getName() << " A(" << v->getName() << ") = " <<
+//            v->getA() << endl;
+//    }
+//    cout << "It was from class" << endl;
 
-    StaticGraph *staticGraph = g->getStaticGraph(v0);
-    cout << staticGraph->toString();
-    TransitiveClosure *transClosure = staticGraph->transitiveClosure();
+    StaticGraph *static_graph = temp_graph->getStaticGraph(v0);
+    cout << static_graph->toString();
+    TransitiveClosure *transClosure = static_graph->transitiveClosure();
     cout << "\nTransitive closure: " << endl;
     cout << transClosure->toString();
     auto map = transClosure->getLabelVertMap(); // map to match string labels with vertexes
@@ -140,9 +143,14 @@ void temp_graph_test() {
     termSet->insert(termSet->begin(), (*map)["4"]);
     termSet->insert(termSet->begin(), (*map)["5"]);
     cout << "Weight minimum spanning tree:" << endl;
+    Tree* wmst = static_graph->alg6(transClosure, 2, termSet->size(), static_graph->getRoot(), termSet);
 //    cout << staticGraph->alg4(transClosure, 2, termSet->size(), staticGraph->getRoot(), termSet)->toString();
 //    cout << staticGraph->alg3(transClosure, 2, termSet->size(), staticGraph->getRoot(), termSet)->toString();
-    cout << staticGraph->alg6(transClosure, 2, termSet->size(), staticGraph->getRoot(), termSet)->toString();
+    cout << wmst->toString();
+    delete temp_graph;
+    delete static_graph;
+    delete transClosure;
+    delete wmst;
 }
 
 typedef property<vertex_distance_t, float,
