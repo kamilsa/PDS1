@@ -3,5 +3,5 @@ project(PDS1)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-set(SOURCE_FILES main.cpp my_graphs/tgr.cpp my_graphs/tgr.h my_graphs/sgr.cpp my_graphs/sgr.h)
+set(SOURCE_FILES main.cpp my_graphs/tgr.cpp my_graphs/tgr.h my_graphs/sgr.cpp my_graphs/sgr.h dataset/enron/enron_parser.cpp dataset/enron/enron_parser.h)
 add_executable(PDS1 ${SOURCE_FILES})

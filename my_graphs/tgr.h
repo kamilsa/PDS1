@@ -130,8 +130,13 @@ private:
 public:
     TempGraph();
     ~TempGraph();
-    void addEdge(shared_ptr<TempVertex> from, shared_ptr<TempVertex> to, int startTime, int arrTime);
+    void addEdge(shared_ptr<TempVertex> from, shared_ptr<TempVertex> to, long startTime, long arrTime);
     void addEdge(TempEdge* edge);
+
+    int getVertsNumber();
+
+    int getEdgeNumber();
+
     std::string toString();
     std::vector<TempEdge*>* deriveSortedEdgeList(); // derive list of edges sorted by started time
 

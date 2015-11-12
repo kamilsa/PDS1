@@ -59,7 +59,7 @@ void TempVertex::add_arr_edge(TempEdge *edge) {
 //    for (int i = 0; i < sas->size(); i++){
 //        std::cout << (*sas)[i].arrival << " ";
 //    }
-    std::cout << std::endl;
+//    std::cout << std::endl;
 }
 
 int TempVertex::binarySearchOrNext(long target, int low, int high) {
@@ -155,7 +155,7 @@ TempGraph::~TempGraph(){
     delete sal;
 }
 
-void TempGraph::addEdge(shared_ptr<TempVertex> from, shared_ptr<TempVertex> to, int startTime, int arrTime) {
+void TempGraph::addEdge(shared_ptr<TempVertex> from, shared_ptr<TempVertex> to, long startTime, long arrTime) {
     if ((*sal)[from->getName()] == 0x00) {
         vertSet->insert(from);
         (*sal)[from->getName()] = new std::vector<TempEdge *>();
@@ -188,6 +188,19 @@ void TempGraph::addEdge(TempEdge *edge) {
 
     auto temp_vector = (*sal)[from->getName()];
     temp_vector->insert(temp_vector->end(), edge);
+}
+
+int TempGraph::getVertsNumber() {
+    return vertSet->size();
+}
+
+
+int TempGraph::getEdgeNumber() {
+    int res = 0;
+    for(auto it1 = sal->begin(); it1 != sal->end(); it1++){
+        res += it1->second->size();
+    }
+    return res;
 }
 
 std::string TempGraph::toString() {
@@ -370,7 +383,7 @@ StaticGraph *TempGraph::getStaticGraph(shared_ptr<TempVertex> root) {
     struct Triple {
         long corArrTime;
         long weight;
-        StaticVertex *staticVertex;
+        shared_ptr<StaticVertex>staticVertex;
     };
 
     StaticGraph *st = new StaticGraph();
@@ -389,18 +402,20 @@ StaticGraph *TempGraph::getStaticGraph(shared_ptr<TempVertex> root) {
                 Triple *pair = new Triple;
                 pair->corArrTime = edge->getArrTime();
                 pair->weight = edge->getWeight();
-                pair->staticVertex = new StaticVertex(edge->getDestination()->getName() + "_" + std::to_string(i+1));
+                shared_ptr<StaticVertex> temp(new StaticVertex(edge->getDestination()->getName() + "_" + std::to_string(i+1)));
+                pair->staticVertex = temp;
                 vect->insert(vect->end(), pair);
             }
             Triple *pair1 = new Triple;
             pair1->corArrTime = LONG_MAX;
             pair1->weight = 0;
-            pair1->staticVertex = new StaticVertex((*t_edges)[0]->getDestination()->getName());
+            shared_ptr<StaticVertex> temp(new StaticVertex((*t_edges)[0]->getDestination()->getName()));
+            pair1->staticVertex = temp;
             vect->insert(vect->end(), pair1);
 
             for (int i = 0; i < vect->size() - 1; i++) {
-                StaticVertex *from = new StaticVertex((*vect)[i]->staticVertex);
-                StaticVertex *to = new StaticVertex((*vect)[i + 1]->staticVertex);
+                shared_ptr<StaticVertex>from(new StaticVertex((*vect)[i]->staticVertex));
+                shared_ptr<StaticVertex>to(new StaticVertex((*vect)[i + 1]->staticVertex));
                 st->add_edge(from, to, 0);
             }
         }
@@ -410,7 +425,8 @@ StaticGraph *TempGraph::getStaticGraph(shared_ptr<TempVertex> root) {
             Triple * pair = new Triple;
             pair->corArrTime = 0;
             pair->weight = 0;
-            pair->staticVertex = new StaticVertex(v->getName());
+            shared_ptr<StaticVertex> temp(new StaticVertex(v->getName()));
+            pair->staticVertex = temp;
             vect->insert(vect->end(), pair);
 
             st->setRoot(pair->staticVertex); // if want to define root
@@ -448,7 +464,7 @@ StaticGraph *TempGraph::getStaticGraph(shared_ptr<TempVertex> root) {
                     break;
                 }
             }
-            if (to == nullptr)
+            if (to == nullptr || from == nullptr)
                 continue;
             weight = t_edge->getWeight();
             st->add_edge(from->staticVertex, to->staticVertex, weight);

@@ -5,6 +5,7 @@
 #include <memory>
 
 #include <chrono> // to measure time
+#include "dataset/enron/enron_parser.h"
 
 using namespace std;
 
@@ -16,11 +17,14 @@ void boost_test();
 
 void set_test();
 
+void enron_test();
+
 int main() {
+
         auto start = std::chrono::high_resolution_clock::now();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 1; i++) {
             temp_graph_test();
-            cout << "iteration # " << i << endl;
+//            cout << "iteration # " << i << endl;
         }
 //        set_test();
         auto finish = std::chrono::high_resolution_clock::now();
@@ -31,9 +35,9 @@ int main() {
 
 void static_graph_test() {
     StaticGraph *gr = new StaticGraph();
-    StaticVertex *v1 = new StaticVertex("1");
-    StaticVertex *v2 = new StaticVertex("2");
-    StaticVertex *v3 = new StaticVertex("3");
+    shared_ptr<StaticVertex>v1(new StaticVertex("1"));
+    shared_ptr<StaticVertex>v2(new StaticVertex("2"));
+    shared_ptr<StaticVertex>v3(new StaticVertex("3"));
     gr->add_edge(v1, v2, 1);
     gr->add_edge(v1, v3, 2);
     gr->add_edge(v3, v2, 3);
@@ -76,7 +80,7 @@ void temp_graph_test() {
     cout << "\nTransitive closure: " << endl;
     cout << transClosure->toString();
     auto map = transClosure->getLabelVertMap(); // map to match string labels with vertexes
-    set<StaticVertex*>*termSet = new set<StaticVertex*>(); // set of terminals
+    set<shared_ptr<StaticVertex>>*termSet = new set<shared_ptr<StaticVertex>>(); // set of terminals
     termSet->insert(termSet->begin(), (*map)["1"]);
     termSet->insert(termSet->begin(), (*map)["2"]);
     termSet->insert(termSet->begin(), (*map)["3"]);
@@ -84,6 +88,8 @@ void temp_graph_test() {
     termSet->insert(termSet->begin(), (*map)["5"]);
     cout << "Weight minimum spanning tree:" << endl;
     Tree* wmst = static_graph->alg6(transClosure, 2, termSet->size(), static_graph->getRoot(), termSet);
+//    Tree* wmst = static_graph->alg4(transClosure, 2, termSet->size(), static_graph->getRoot(), termSet);
+//    Tree* wmst = static_graph->alg3(transClosure, 2, termSet->size(), static_graph->getRoot(), termSet);
 //    cout << staticGraph->alg4(transClosure, 2, termSet->size(), staticGraph->getRoot(), termSet)->toString();
 //    cout << staticGraph->alg3(transClosure, 2, termSet->size(), staticGraph->getRoot(), termSet)->toString();
     cout << wmst->toString();
@@ -96,14 +102,14 @@ void temp_graph_test() {
 void set_test(){
     class pair{
     public:
-        StaticVertex* v1;
-        StaticVertex* v2;
+        shared_ptr<StaticVertex> v1;
+        shared_ptr<StaticVertex> v2;
     };
     pair* p1, *p2;
     p1 = new pair;
     p2 = new pair;
-    StaticVertex* v1 = new StaticVertex("1");
-    StaticVertex* v2 = new StaticVertex("2");
+    shared_ptr<StaticVertex> v1(new StaticVertex("1"));
+    shared_ptr<StaticVertex> v2(new StaticVertex("2"));
     std::set<pair*> *s = new std::set<pair*>();
 
     p1->v1 = v1;
@@ -114,4 +120,16 @@ void set_test(){
 
     s->insert(s->begin(), p1);
     cout << s->size();
+}
+
+void enron_test(){
+    string filename = "./dataset/enron/test.enron";
+    shared_ptr<enron_parser> ep(new enron_parser(filename));
+    TempGraph* tg = ep->getTG();
+    cout << "Vert number: " << tg->getVertsNumber() << endl;
+    cout << "Edges number: " << tg->getEdgeNumber() << endl;
+
+
+
+    ep.reset();
 }
