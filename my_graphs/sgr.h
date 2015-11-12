@@ -96,6 +96,8 @@ public:
 
     virtual std::set<shared_ptr<StaticVertex>>* getVertSet();
 
+    int get_edge_number();
+
     virtual std::map<std::string, shared_ptr<StaticVertex>>* getLabelVertMap();
 
     virtual void add_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, long weight);

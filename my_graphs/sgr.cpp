@@ -129,6 +129,14 @@ std::set<shared_ptr<StaticVertex>> *StaticGraph::getVertSet() {
     return vertSet;
 }
 
+int StaticGraph::get_edge_number() {
+    int res = 0;
+    for(auto it1 = this->adj_list->begin(); it1 != adj_list->end(); it1++){
+        res += it1->second->size();
+    }
+    return res;
+}
+
 std::map<std::string, shared_ptr<StaticVertex>> *StaticGraph::getLabelVertMap() {
     return labelVert;
 }
@@ -270,6 +278,7 @@ shared_ptr<TransitiveClosure> StaticGraph::transitiveClosure() {
 
 Tree *StaticGraph::alg3(shared_ptr<TransitiveClosure> tr_cl, int i, int k, shared_ptr<StaticVertex> root,
                         std::set<shared_ptr<StaticVertex>> *X) {
+    cout << ".";
     Tree *tree = new Tree();
     if (i == 1) {
         if (k > X->size()) return tree;
@@ -349,8 +358,9 @@ Tree *StaticGraph::alg4(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
             Tree *treeBest = new Tree();
             (*den)[treeBest] = LONG_MAX;
             for (shared_ptr<StaticVertex> v : *tr_cl->getVertSet()) {
-                Tree *treeP = alg5(tr_cl, i - 1, k, v, new std::set<shared_ptr<StaticVertex>>(X->begin(), X->end()),
-                                   tr_cl->hasEdge(root, v));
+                StaticEdge *e = tr_cl->hasEdge(root, v); ///!! If there is no such e could be problems
+                if (e == nullptr) continue;
+                Tree *treeP = alg5(tr_cl, i - 1, k, v, new std::set<shared_ptr<StaticVertex>>(X->begin(), X->end()), e);
                 int size = X->size();
                 treeP->add_edge(root, v, tr_cl->costEdge(root, v));
                 int covered = 0; // how many terminals are covered
@@ -511,7 +521,8 @@ Tree *StaticGraph::alg6(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
             //-----------------------------------------------------
             if (first) {
                 for (shared_ptr<StaticVertex> v : *vertSet) {
-                    StaticEdge *e = tr_cl->hasEdge(root, v);
+                    StaticEdge *e = tr_cl->hasEdge(root, v); ///!! If there is no such e could be problems
+                    if (e == nullptr) continue;
                     Tree *treeP = alg7(tr_cl, i - 1, k, v, new std::set<shared_ptr<StaticVertex>>(X->begin(), X->end()),
                                        e);
                     treeP->add_edge(root, v, e->getWeight());
@@ -869,3 +880,4 @@ std::set<shared_ptr<StaticVertex>> *vert_minus(std::set<shared_ptr<StaticVertex>
     }
     return res;
 }
+
