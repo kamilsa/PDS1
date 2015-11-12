@@ -87,6 +87,7 @@ StaticGraph::StaticGraph() {
     adj_list = new std::map<std::string, std::vector<StaticEdge *> *>();
     vertSet = new std::set<shared_ptr<StaticVertex>>();
     labelVert = new std::map<std::string, shared_ptr<StaticVertex>>();
+    terms = new set<shared_ptr<StaticVertex>>();
 }
 
 StaticGraph::StaticGraph(StaticGraph *g) {
@@ -113,6 +114,7 @@ StaticGraph::~StaticGraph() {
         vert.reset();
     delete this->vertSet;
     delete this->labelVert;
+    delete this->terms;
 }
 
 shared_ptr<StaticVertex>StaticGraph::getRoot() {
@@ -161,6 +163,14 @@ StaticEdge *StaticGraph::hasEdge(shared_ptr<StaticVertex> from, shared_ptr<Stati
         }
     }
     return nullptr;
+}
+
+set<shared_ptr<StaticVertex>>* StaticGraph::get_terms() {
+    return terms;
+}
+
+void StaticGraph::add_to_terms(shared_ptr<StaticVertex> v) {
+    terms->insert(terms->begin(), v);
 }
 
 std::string StaticGraph::toString() {
@@ -675,7 +685,7 @@ long TransitiveClosure::costEdge(shared_ptr<StaticVertex> u, shared_ptr<StaticVe
     auto vertList = (*adj_list)[u->getName()];
     for (int i = 0; i < vertList->size(); i++) {
         StaticEdge *edge = (*vertList)[i];
-        if (edge->getTo() == v) {
+        if (edge->getTo()->getName() == v->getName()) {
             return edge->getWeight();
         }
     }

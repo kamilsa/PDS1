@@ -23,23 +23,23 @@ int main() {
 
     enron_test();
     return 0;
-        auto start = std::chrono::high_resolution_clock::now();
-        for (int i = 0; i < 1; i++) {
-            temp_graph_test();
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < 1; i++) {
+        temp_graph_test();
 //            cout << "iteration # " << i << endl;
-        }
+    }
 //        set_test();
-        auto finish = std::chrono::high_resolution_clock::now();
-        cout << "Execution time : " << std::chrono::duration_cast<std::chrono::nanoseconds>(finish-start).count();
-     return 0;
+    auto finish = std::chrono::high_resolution_clock::now();
+    cout << "Execution time : " << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count();
+    return 0;
 }
 
 
 void static_graph_test() {
     StaticGraph *gr = new StaticGraph();
-    shared_ptr<StaticVertex>v1(new StaticVertex("1"));
-    shared_ptr<StaticVertex>v2(new StaticVertex("2"));
-    shared_ptr<StaticVertex>v3(new StaticVertex("3"));
+    shared_ptr<StaticVertex> v1(new StaticVertex("1"));
+    shared_ptr<StaticVertex> v2(new StaticVertex("2"));
+    shared_ptr<StaticVertex> v3(new StaticVertex("3"));
     gr->add_edge(v1, v2, 1);
     gr->add_edge(v1, v3, 2);
     gr->add_edge(v3, v2, 3);
@@ -82,14 +82,14 @@ void temp_graph_test() {
     cout << "\nTransitive closure: " << endl;
     cout << transClosure->toString();
     auto map = transClosure->getLabelVertMap(); // map to match string labels with vertexes
-    set<shared_ptr<StaticVertex>>*termSet = new set<shared_ptr<StaticVertex>>(); // set of terminals
+    set<shared_ptr<StaticVertex>> *termSet = new set<shared_ptr<StaticVertex>>(); // set of terminals
     termSet->insert(termSet->begin(), (*map)["1"]);
     termSet->insert(termSet->begin(), (*map)["2"]);
     termSet->insert(termSet->begin(), (*map)["3"]);
     termSet->insert(termSet->begin(), (*map)["4"]);
     termSet->insert(termSet->begin(), (*map)["5"]);
     cout << "Weight minimum spanning tree:" << endl;
-    Tree* wmst = static_graph->alg6(transClosure, 2, termSet->size(), static_graph->getRoot(), termSet);
+    Tree *wmst = static_graph->alg6(transClosure, 2, termSet->size(), static_graph->getRoot(), termSet);
 //    Tree* wmst = static_graph->alg4(transClosure, 2, termSet->size(), static_graph->getRoot(), termSet);
 //    Tree* wmst = static_graph->alg3(transClosure, 2, termSet->size(), static_graph->getRoot(), termSet);
 //    cout << staticGraph->alg4(transClosure, 2, termSet->size(), staticGraph->getRoot(), termSet)->toString();
@@ -101,18 +101,18 @@ void temp_graph_test() {
     delete wmst;
 }
 
-void set_test(){
-    class pair{
+void set_test() {
+    class pair {
     public:
         shared_ptr<StaticVertex> v1;
         shared_ptr<StaticVertex> v2;
     };
-    pair* p1, *p2;
+    pair *p1, *p2;
     p1 = new pair;
     p2 = new pair;
     shared_ptr<StaticVertex> v1(new StaticVertex("1"));
     shared_ptr<StaticVertex> v2(new StaticVertex("2"));
-    std::set<pair*> *s = new std::set<pair*>();
+    std::set<pair *> *s = new std::set<pair *>();
 
     p1->v1 = v1;
     p1->v2 = v2;
@@ -124,28 +124,65 @@ void set_test(){
     cout << s->size();
 }
 
-void enron_test(){
-    string filename = "./dataset/enron/out.enron";
+void enron_test() {
+
+    cout << "Reading dataset started.." << endl;
+    auto start = std::chrono::high_resolution_clock::now();
+    string filename = "./dataset/enron/test.enron";
     shared_ptr<enron_parser> ep(new enron_parser(filename));
     shared_ptr<TempGraph> tg(ep->getTG());
-    cout << "Vert number: " << tg->getVertsNumber() << endl;
-    cout << "Edges number: " << tg->getEdgeNumber() << endl;
+    auto finish = std::chrono::high_resolution_clock::now();
+    cout << "Reading dataset is done within(ms) : " <<
+    std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count() << endl << endl;
+    cout << "Temporal Verts number: " << tg->getVertsNumber() << endl;
+    cout << "Temporal Edges number: " << tg->getEdgeNumber() << endl << endl;
 
 
-    shared_ptr<TempGraph> tg_small(ep->get_small_graph(4));
-    cout << "Vert number: " << tg_small->getVertsNumber() << endl;
-    cout << "Edges number: " << tg_small->getEdgeNumber() << endl;
-    ep->save_graph("./dataset/enron/test.enron", tg_small);
-    tg_small.reset();
+//    shared_ptr<TempGraph> tg_small(ep->get_small_graph(3));
+//    cout << "Vert number: " << tg_small->getVertsNumber() << endl;
+//    cout << "Edges number: " << tg_small->getEdgeNumber() << endl;
+//    ep->save_graph("./dataset/enron/test.enron", tg_small);
+//    tg_small.reset();
 
-    cout << ep->get_terms(ep->getRoot(), 0)->size() << endl;
+//    cout << ep->get_terms(ep->getRoot(), 0)->size() << endl;
 
-//    shared_ptr<StaticGraph> sg(tg->getStaticGraph(ep->getRoot()));
-//    shared_ptr<TransitiveClosure> tr_cl(sg->transitiveClosure());
-//
+    cout << "Getting static graph process is started.." << endl;
+    start = std::chrono::high_resolution_clock::now();
+    shared_ptr<StaticGraph> sg(tg->getStaticGraph(ep->getRoot()));
+    finish = std::chrono::high_resolution_clock::now();
+    cout << "Getting static graph is done within(ms) : " <<
+    std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count() << endl << endl;
+
+    auto terms(sg->get_terms());
+    terms->erase(sg->getRoot());
+
+    cout << "Calculating transitive closure is started.." << endl;
+    start = std::chrono::high_resolution_clock::now();
+    shared_ptr<TransitiveClosure> tr_cl(sg->transitiveClosure());
+    finish = std::chrono::high_resolution_clock::now();
+    cout << "Calculating transitive closure is done within(ms) : " <<
+    std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count() << endl << endl;
+
+//    cout << "Transitive Closure: " << endl;
 //    cout << tr_cl->toString();
-//    tr_cl.reset();
-//    sg.reset();
+
+    int i = 2;
+    cout << "Calculating wMST(alg6) with i = " << i << " is started.." << endl;
+    start = std::chrono::high_resolution_clock::now();
+    shared_ptr<Tree> wmst(sg->alg3(tr_cl, 2, terms->size(), sg->getRoot(), terms));
+//    shared_ptr<Tree> wmst(sg->alg4(tr_cl, 2, terms->size(), sg->getRoot(), terms));
+//    shared_ptr<Tree> wmst(sg->alg6(tr_cl, i, terms->size(), sg->getRoot(), terms));
+    finish = std::chrono::high_resolution_clock::now();
+    cout << "Calculating wMST is done within(ms) : " <<
+    std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count() << endl << endl;
+
+//    cout << "wMST: " << endl;
+//    cout << wmst->toString();
+
+    wmst.reset();
+    tr_cl.reset();
+    sg.reset();
     tg.reset();
     ep.reset();
+    delete terms;
 }

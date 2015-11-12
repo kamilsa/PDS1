@@ -79,6 +79,8 @@ protected:
     shared_ptr<StaticVertex> root; //
     std::map<std::string, shared_ptr<StaticVertex>>* labelVert;
 
+    set<shared_ptr<StaticVertex>>* terms; // terminal vertices -- those, which we are trying to reach
+
     void putInOrder(std::vector<myEntry*>* vec, myEntry* entr);
     int entrBinSearchOrNext(std::vector<myEntry*>* vec, myEntry* entr);
 public:
@@ -101,6 +103,10 @@ public:
     virtual void remove_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to);
 
     virtual StaticEdge* hasEdge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to);
+
+    set<shared_ptr<StaticVertex>>* get_terms();
+
+    void add_to_terms(shared_ptr<StaticVertex> v);
 
     virtual std::string toString();
 

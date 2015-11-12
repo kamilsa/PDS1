@@ -440,6 +440,7 @@ StaticGraph *TempGraph::getStaticGraph(shared_ptr<TempVertex> root) {
             pair1->weight = 0;
             shared_ptr<StaticVertex> temp(new StaticVertex((*t_edges)[0]->getDestination()->getName()));
             pair1->staticVertex = temp;
+            st->add_to_terms(temp);
             vect->insert(vect->end(), pair1);
 
             for (int i = 0; i < vect->size() - 1; i++) {
@@ -456,6 +457,7 @@ StaticGraph *TempGraph::getStaticGraph(shared_ptr<TempVertex> root) {
             pair->weight = 0;
             shared_ptr<StaticVertex> temp(new StaticVertex(v->getName()));
             pair->staticVertex = temp;
+            st->add_to_terms(temp);
             vect->insert(vect->end(), pair);
 
             st->setRoot(pair->staticVertex); // if want to define root
