@@ -137,6 +137,8 @@ public:
  * inherited from StaticGraph
  */
 class TransitiveClosure : StaticGraph{
+private:
+    int bin_search_or_next_edge(vector<StaticEdge*>* vect, StaticEdge* edge);
 public:
     TransitiveClosure();
 
@@ -168,6 +170,9 @@ public:
      */
     long costEdge(shared_ptr<StaticVertex> u, shared_ptr<StaticVertex> v);
     long costEdge(std::string u_name, std::string v_name);
+
+    //returns minimum cost between u and v, where v is in X
+    long min_cost_edge(shared_ptr<StaticVertex> u, set<shared_ptr<StaticVertex>>* X);
 
 };
 

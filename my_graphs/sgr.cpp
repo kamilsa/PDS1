@@ -531,7 +531,7 @@ Tree *StaticGraph::alg6(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
                         treeBest = treeP;
                         (*den)[treeBest] = treePWeight;
                     }
-                    //TODO:put with sorting
+                    //putting with sorting:
                     myEntry *entry = new myEntry;
                     entry->value = v;
                     entry->density = treePWeight;
@@ -596,6 +596,8 @@ Tree *StaticGraph::alg7(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
                     minVert = v;
                 }
             }
+//            long myMinCost = tr_cl->min_cost_edge(root, X);
+//            cout << "his = " << minCost << " mine = " << myMinCost << endl;
             if (minCost != LONG_MAX)
                 treeC->add_edge(root, minVert, minCost);
             k--;
@@ -714,6 +716,40 @@ long TransitiveClosure::costEdge(std::string u_name, std::string v_name) {
     return LONG_MAX;
 }
 
+long TransitiveClosure::min_cost_edge(shared_ptr<StaticVertex> u, set<shared_ptr<StaticVertex>> *X) {
+    auto adj = (*adj_list)[u->getName()];
+    for (auto el : *adj){
+        if (X->find(el->getTo()) != X->end()){
+            return el->getWeight();
+        }
+    }
+    return LONG_MAX;
+}
+
+int TransitiveClosure::bin_search_or_next_edge(vector<StaticEdge *>* vect, StaticEdge* edge) {
+    int low = 0;
+    int high = vect->size() - 1;
+
+    while (low <= high) {
+        // To convert to Javascript:
+        // var mid = low + ((high - low) / 2) | 0;
+        int mid = low + ((high - low) / 2);
+
+        /**/ if ((*vect)[mid]->getWeight() < edge->getWeight()) low = mid + 1;
+        else if ((*vect)[mid]->getWeight() > edge->getWeight()) high = mid - 1;
+        else return mid + 1;
+    }
+
+    if (high < 0)
+        return 0;   // key < data[0]
+    else if (low > (vect->size() - 1))
+        return vect->size(); // key >= data[len-1]
+    else
+        return (low < high)
+               ? low + 1
+               : high + 1;
+}
+
 TransitiveClosure::TransitiveClosure() : StaticGraph() {
     StaticGraph::StaticGraph();
 }
@@ -739,7 +775,25 @@ std::map<std::string, shared_ptr<StaticVertex>> *TransitiveClosure::getLabelVert
 }
 
 void TransitiveClosure::add_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, long weight) {
-    StaticGraph::add_edge(from, to, weight);
+//    StaticGraph::add_edge(from, to, weight);
+    vertSet->insert(vertSet->end(), from);
+    vertSet->insert(vertSet->end(), to);
+    if ((*adj_list)[from->getName()] == 0x00) {
+        (*adj_list)[from->getName()] = new std::vector<StaticEdge *>();
+        (*labelVert)[from->getName()] = from;
+    }
+    if ((*adj_list)[to->getName()] == 0x00) {
+        (*adj_list)[to->getName()] = new std::vector<StaticEdge *>();
+        (*labelVert)[to->getName()] = to;
+    }
+    StaticEdge *edge = new StaticEdge(from, to, weight);
+    std::vector<StaticEdge *> *temp = (*adj_list)[from->getName()];
+    if (temp->empty())
+        temp->insert(temp->end(), edge);
+    else{
+        int pos = bin_search_or_next_edge(temp, edge);
+        temp->insert(temp->begin()+pos, edge);
+    }
 }
 
 void TransitiveClosure::remove_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to) {

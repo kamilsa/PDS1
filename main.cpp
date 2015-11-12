@@ -128,7 +128,7 @@ void enron_test() {
 
     cout << "Reading dataset started.." << endl;
     auto start = std::chrono::high_resolution_clock::now();
-    string filename = "./dataset/enron/test.enron";
+    string filename = "./dataset/enron/38_102_reachable.enron";
     shared_ptr<enron_parser> ep(new enron_parser(filename));
     shared_ptr<TempGraph> tg(ep->getTG());
     auto finish = std::chrono::high_resolution_clock::now();
@@ -168,14 +168,14 @@ void enron_test() {
     std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count() << endl << endl;
 
 //    cout << "Transitive Closure: " << endl;
-//    cout << tr_cl->toString();
+    cout << tr_cl->toString();
 
     int i = 2;
     cout << "Calculating wMST(alg6) with i = " << i << " is started.." << endl;
     start = std::chrono::high_resolution_clock::now();
 //    shared_ptr<Tree> wmst(sg->alg3(tr_cl, 2, terms->size(), sg->getRoot(), terms));
-    shared_ptr<Tree> wmst(sg->alg4(tr_cl, 2, terms->size(), sg->getRoot(), terms));
-//    shared_ptr<Tree> wmst(sg->alg6(tr_cl, i, terms->size(), sg->getRoot(), terms));
+//    shared_ptr<Tree> wmst(sg->alg4(tr_cl, 2, terms->size(), sg->getRoot(), terms));
+    shared_ptr<Tree> wmst(sg->alg6(tr_cl, i, terms->size(), sg->getRoot(), terms));
     finish = std::chrono::high_resolution_clock::now();
     cout << "Calculating wMST is done within(ms) : " <<
     std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count() << endl << endl;
@@ -188,5 +188,5 @@ void enron_test() {
     sg.reset();
     tg.reset();
     ep.reset();
-    delete terms; // FIX it
+    delete(terms); // FIX it
 }
