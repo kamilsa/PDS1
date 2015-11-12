@@ -228,9 +228,9 @@ std::map<string, long> *StaticGraph::dijkstra(shared_ptr<StaticVertex> source) {
     return dist;
 }
 
-TransitiveClosure *StaticGraph::transitiveClosure() {
-    TransitiveClosure *trcl = new TransitiveClosure();
-    set<string>* considered = new set<string>();
+shared_ptr<TransitiveClosure> StaticGraph::transitiveClosure() {
+    shared_ptr<TransitiveClosure> trcl(new TransitiveClosure());
+    unordered_set<string>* considered = new unordered_set<string>();
     for (shared_ptr<StaticVertex> u : *vertSet) {
         if(considered->find(u->getName()) == considered->end())
             considered->insert(considered->begin(), u->getName());
@@ -238,11 +238,11 @@ TransitiveClosure *StaticGraph::transitiveClosure() {
             continue;
 
         auto shortDists = dijkstra(u); // shortest distance from u to other nodes, infinity defines unreachable nodes
-        cout << endl;
-        cout << u->getName() << ":" << endl;
-        for (auto it1 = shortDists->begin(); it1 != shortDists->end(); it1++){
-            cout << it1->first << " : " << it1->second << endl;
-        }
+//        cout << endl;
+//        cout << u->getName() << ":" << endl;
+//        for (auto it1 = shortDists->begin(); it1 != shortDists->end(); it1++){
+//            cout << it1->first << " : " << it1->second << endl;
+//        }
 
         for (shared_ptr<StaticVertex> v : *vertSet) {
 //            if(u->getName() != v->getName()) {
@@ -258,7 +258,7 @@ TransitiveClosure *StaticGraph::transitiveClosure() {
     return trcl;
 }
 
-Tree *StaticGraph::alg3(TransitiveClosure *tr_cl, int i, int k, shared_ptr<StaticVertex> root,
+Tree *StaticGraph::alg3(shared_ptr<TransitiveClosure> tr_cl, int i, int k, shared_ptr<StaticVertex> root,
                         std::set<shared_ptr<StaticVertex>> *X) {
     Tree *tree = new Tree();
     if (i == 1) {
@@ -312,7 +312,7 @@ Tree *StaticGraph::alg3(TransitiveClosure *tr_cl, int i, int k, shared_ptr<Stati
     return tree;
 }
 
-Tree *StaticGraph::alg4(TransitiveClosure *tr_cl, int i, int k, shared_ptr<StaticVertex> root,
+Tree *StaticGraph::alg4(shared_ptr<TransitiveClosure> tr_cl, int i, int k, shared_ptr<StaticVertex> root,
                         std::set<shared_ptr<StaticVertex>> *X) {
     Tree *tree = new Tree();
     if (i == 1) {
@@ -363,7 +363,7 @@ Tree *StaticGraph::alg4(TransitiveClosure *tr_cl, int i, int k, shared_ptr<Stati
     return tree;
 }
 
-Tree *StaticGraph::alg5(TransitiveClosure *tr_cl, int i, int k, shared_ptr<StaticVertex> root,
+Tree *StaticGraph::alg5(shared_ptr<TransitiveClosure> tr_cl, int i, int k, shared_ptr<StaticVertex> root,
                         std::set<shared_ptr<StaticVertex>> *X,
                         StaticEdge *e) {
     Tree *tree = new Tree();
@@ -469,7 +469,7 @@ int StaticGraph::entrBinSearchOrNext(std::vector<StaticGraph::myEntry *> *vec, S
                : high + 1;
 }
 
-Tree *StaticGraph::alg6(TransitiveClosure *tr_cl, int i, int k, shared_ptr<StaticVertex> root,
+Tree *StaticGraph::alg6(shared_ptr<TransitiveClosure> tr_cl, int i, int k, shared_ptr<StaticVertex> root,
                         std::set<shared_ptr<StaticVertex>> *X) {
     Tree *tree = new Tree();
     if (i == 1) {
@@ -558,7 +558,7 @@ Tree *StaticGraph::alg6(TransitiveClosure *tr_cl, int i, int k, shared_ptr<Stati
     return tree;
 }
 
-Tree *StaticGraph::alg7(TransitiveClosure *tr_cl, int i, int k, shared_ptr<StaticVertex> root,
+Tree *StaticGraph::alg7(shared_ptr<TransitiveClosure> tr_cl, int i, int k, shared_ptr<StaticVertex> root,
                         std::set<shared_ptr<StaticVertex>> *X,
                         StaticEdge *e) {
     Tree *tree = new Tree();
@@ -737,7 +737,7 @@ std::map<std::string, long> *TransitiveClosure::dijkstra(shared_ptr<StaticVertex
     return StaticGraph::dijkstra(source);
 }
 
-TransitiveClosure *TransitiveClosure::transitiveClosure() {
+shared_ptr<TransitiveClosure> TransitiveClosure::transitiveClosure() {
     return StaticGraph::transitiveClosure();
 }
 

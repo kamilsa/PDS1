@@ -11,6 +11,7 @@
 #include <map>
 #include <vector>
 #include <set>
+#include <unordered_set>
 #include <queue>
 #include <memory>
 //#include <algorithm>
@@ -109,18 +110,18 @@ public:
     std::map<string, long>* dijkstra(shared_ptr<StaticVertex> source);
 
     virtual //returns transitive closure, executing dijkstra |V| times
-    TransitiveClosure* transitiveClosure();
+    shared_ptr<TransitiveClosure> transitiveClosure();
 
-    virtual Tree* alg3(TransitiveClosure* tr_cl, int i, int k, shared_ptr<StaticVertex> root, std::set<shared_ptr<StaticVertex>>* X);
+    virtual Tree* alg3(shared_ptr<TransitiveClosure>  tr_cl, int i, int k, shared_ptr<StaticVertex> root, std::set<shared_ptr<StaticVertex>>* X);
 
     /*improved alg3*/
-    virtual Tree* alg4(TransitiveClosure* tr_cl, int i, int k, shared_ptr<StaticVertex> root, std::set<shared_ptr<StaticVertex>>* X);
+    virtual Tree* alg4(shared_ptr<TransitiveClosure>  tr_cl, int i, int k, shared_ptr<StaticVertex> root, std::set<shared_ptr<StaticVertex>>* X);
 
-    virtual Tree* alg5(TransitiveClosure* tr_cl, int i, int k, shared_ptr<StaticVertex> root, std::set<shared_ptr<StaticVertex>>* X, StaticEdge* e);
+    virtual Tree* alg5(shared_ptr<TransitiveClosure>  tr_cl, int i, int k, shared_ptr<StaticVertex> root, std::set<shared_ptr<StaticVertex>>* X, StaticEdge* e);
 
-    virtual Tree* alg6(TransitiveClosure* tr_cl, int i, int k, shared_ptr<StaticVertex> root, std::set<shared_ptr<StaticVertex>>* X);
+    virtual Tree* alg6(shared_ptr<TransitiveClosure>  tr_cl, int i, int k, shared_ptr<StaticVertex> root, std::set<shared_ptr<StaticVertex>>* X);
 
-    virtual Tree* alg7(TransitiveClosure* tr_cl, int i, int k, shared_ptr<StaticVertex> root, std::set<shared_ptr<StaticVertex>>* X, StaticEdge* e);
+    virtual Tree* alg7(shared_ptr<TransitiveClosure>  tr_cl, int i, int k, shared_ptr<StaticVertex> root, std::set<shared_ptr<StaticVertex>>* X, StaticEdge* e);
 };
 
 /*
@@ -151,7 +152,7 @@ public:
 
     virtual std::map<std::string, long> *dijkstra(shared_ptr<StaticVertex> source) override;
 
-    virtual TransitiveClosure *transitiveClosure() override;
+    virtual shared_ptr<TransitiveClosure> transitiveClosure() override;
 
 /*
      * returns cost in edge (u,v)

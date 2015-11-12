@@ -141,6 +141,7 @@ TempGraph::TempGraph() {
     this->edgeList = new std::vector<TempEdge *>();
     this->vertSet = new std::set<shared_ptr<TempVertex> >();
     this->sal = new std::map<std::string, std::vector<TempEdge *> *>();
+    this->label2Vert = new map<string, shared_ptr<TempVertex>>();
 }
 
 TempGraph::~TempGraph(){
@@ -153,9 +154,10 @@ TempGraph::~TempGraph(){
         delete(it1->second);
     }
     delete sal;
+    delete label2Vert;
 }
 
-void TempGraph::addEdge(shared_ptr<TempVertex> from, shared_ptr<TempVertex> to, long startTime, long arrTime) {
+void TempGraph::addEdge(shared_ptr<TempVertex> from, shared_ptr<TempVertex> to, long startTime, long arrTime, long weight) {
     if ((*sal)[from->getName()] == 0x00) {
         vertSet->insert(from);
         (*sal)[from->getName()] = new std::vector<TempEdge *>();
@@ -164,9 +166,22 @@ void TempGraph::addEdge(shared_ptr<TempVertex> from, shared_ptr<TempVertex> to, 
         vertSet->insert(to);
         (*sal)[to->getName()] = new std::vector<TempEdge *>();
     }
+    
+    if ((*label2Vert)[from->getName()] == 0x00){
+        (*label2Vert)[from->getName()] = from;
+    }
+    else
+        from = (*label2Vert)[from->getName()];
+
+    if ((*label2Vert)[to->getName()] == 0x00){
+        (*label2Vert)[to->getName()] = to;
+    }
+    else
+        to = (*label2Vert)[to->getName()];
+
 
     auto temp_vector = (*sal)[from->getName()];
-    long weight = arrTime - startTime; // !!!! YOU CAN DEFINE WEIGHT DIFFERENTLY
+//    long weight = arrTime - startTime; // !!!! YOU CAN DEFINE WEIGHT DIFFERENTLY
     TempEdge *tempEdge = new TempEdge(from, to, startTime, arrTime, weight);
     temp_vector->insert(temp_vector->end(), tempEdge);
 
@@ -201,6 +216,20 @@ int TempGraph::getEdgeNumber() {
         res += it1->second->size();
     }
     return res;
+}
+
+std::map<std::string, std::vector<TempEdge *> *> *TempGraph::getSal() {
+    return sal;
+}
+
+bool TempGraph::hasEdge(shared_ptr<TempVertex>from, shared_ptr<TempVertex>to) {
+    auto list = (*sal)[from->getName()];
+    for (auto el : (*list)){
+        if (el->getDestination()->getName() == to->getName()){
+            return true;
+        }
+    }
+    return false;
 }
 
 std::string TempGraph::toString() {

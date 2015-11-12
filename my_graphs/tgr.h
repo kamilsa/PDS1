@@ -124,18 +124,23 @@ private:
     std::set<shared_ptr<TempVertex>>* vertSet;
     std::vector<TempEdge*>* edgeList;
     std::map<std::string, std::vector<TempEdge *> *> *sal;
+    map<string, shared_ptr<TempVertex>> *label2Vert;
     void quicksort(std::vector<TempEdge*>* arr, int low, int high, sort_type type);
     int partition(std::vector<TempEdge*>* arr, int low, int high, sort_type type);
     void swap(std::vector<TempEdge*>* arr, int i1, int i2);
 public:
     TempGraph();
     ~TempGraph();
-    void addEdge(shared_ptr<TempVertex> from, shared_ptr<TempVertex> to, long startTime, long arrTime);
+    void addEdge(shared_ptr<TempVertex> from, shared_ptr<TempVertex> to, long startTime, long arrTime, long weight);
     void addEdge(TempEdge* edge);
 
     int getVertsNumber();
 
     int getEdgeNumber();
+
+    std::map<std::string, std::vector<TempEdge *> *> *getSal();
+
+    bool hasEdge(shared_ptr<TempVertex> from, shared_ptr<TempVertex> to);
 
     std::string toString();
     std::vector<TempEdge*>* deriveSortedEdgeList(); // derive list of edges sorted by started time

@@ -21,6 +21,8 @@ void enron_test();
 
 int main() {
 
+    enron_test();
+    return 0;
         auto start = std::chrono::high_resolution_clock::now();
         for (int i = 0; i < 1; i++) {
             temp_graph_test();
@@ -76,7 +78,7 @@ void temp_graph_test() {
 
     StaticGraph *static_graph = temp_graph->getStaticGraph(v0);
     cout << static_graph->toString();
-    TransitiveClosure *transClosure = static_graph->transitiveClosure();
+    shared_ptr<TransitiveClosure> transClosure(static_graph->transitiveClosure());
     cout << "\nTransitive closure: " << endl;
     cout << transClosure->toString();
     auto map = transClosure->getLabelVertMap(); // map to match string labels with vertexes
@@ -95,7 +97,7 @@ void temp_graph_test() {
     cout << wmst->toString();
     delete temp_graph;
     delete static_graph;
-    delete transClosure;
+    transClosure.reset();
     delete wmst;
 }
 
@@ -123,13 +125,27 @@ void set_test(){
 }
 
 void enron_test(){
-    string filename = "./dataset/enron/test.enron";
+    string filename = "./dataset/enron/out.enron";
     shared_ptr<enron_parser> ep(new enron_parser(filename));
-    TempGraph* tg = ep->getTG();
+    shared_ptr<TempGraph> tg(ep->getTG());
     cout << "Vert number: " << tg->getVertsNumber() << endl;
     cout << "Edges number: " << tg->getEdgeNumber() << endl;
 
 
+    shared_ptr<TempGraph> tg_small(ep->get_small_graph(4));
+    cout << "Vert number: " << tg_small->getVertsNumber() << endl;
+    cout << "Edges number: " << tg_small->getEdgeNumber() << endl;
+    ep->save_graph("./dataset/enron/test.enron", tg_small);
+    tg_small.reset();
 
+    cout << ep->get_terms(ep->getRoot(), 0)->size() << endl;
+
+//    shared_ptr<StaticGraph> sg(tg->getStaticGraph(ep->getRoot()));
+//    shared_ptr<TransitiveClosure> tr_cl(sg->transitiveClosure());
+//
+//    cout << tr_cl->toString();
+//    tr_cl.reset();
+//    sg.reset();
+    tg.reset();
     ep.reset();
 }
