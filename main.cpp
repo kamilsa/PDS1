@@ -128,7 +128,7 @@ void enron_test() {
     cout << "Temporal Edges number: " << tg->getEdgeNumber() << endl << endl;
 
 
-//    shared_ptr<TempGraph> tg_small(ep->get_small_graph(5));
+//    shared_ptr<TempGraph> tg_small(ep->get_small_graph(2));
 //    cout << "Vert number: " << tg_small->getVertsNumber() << endl;
 //    cout << "Edges number: " << tg_small->getEdgeNumber() << endl;
 //    ep->save_graph("./dataset/enron/test.enron", tg_small);
@@ -160,12 +160,12 @@ void enron_test() {
 //    cout << "Transitive Closure: " << endl;
 //    cout << tr_cl->toString();
 
-    int i = 2;
+    int i = 3;
     cout << "Calculating wMST(alg6) with i = " << i << " is started.." << endl;
     start = std::chrono::high_resolution_clock::now();
-//    shared_ptr<Tree> wmst(sg->alg3(tr_cl, 2, terms->size(), sg->getRoot(), terms));
+    shared_ptr<Tree> wmst(sg->alg3(tr_cl, 2, terms->size(), sg->getRoot(), terms));
 //    shared_ptr<Tree> wmst(sg->alg4(tr_cl, 2, terms->size(), sg->getRoot(), terms));
-    shared_ptr<Tree> wmst(sg->alg6(tr_cl, i, terms->size(), sg->getRoot(), terms));
+//    shared_ptr<Tree> wmst(sg->alg6(tr_cl, i, terms->size(), sg->getRoot(), terms));
     finish = std::chrono::high_resolution_clock::now();
     cout << "Calculating wMST is done within(ms) : " <<
     std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count() << endl << endl;
