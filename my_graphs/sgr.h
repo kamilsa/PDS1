@@ -9,6 +9,7 @@
 #include <iosfwd>
 #include <string>
 #include <map>
+#include <unordered_map>
 #include <vector>
 #include <set>
 #include <unordered_set>
@@ -137,7 +138,7 @@ public:
     //calculates shortest path between vertex u and v within given graph, using Dijkstra method
 
     virtual //returns shortest paths from source
-    std::map<string, long> *dijkstra(shared_ptr<StaticVertex> source);
+    std::unordered_map<string, long> *dijkstra(shared_ptr<StaticVertex> source);
 
     virtual //returns transitive closure, executing dijkstra |V| times
     shared_ptr<TransitiveClosure> transitiveClosure();
@@ -188,7 +189,7 @@ public:
 
     std::string toString() override;
 
-    virtual std::map<std::string, long> *dijkstra(shared_ptr<StaticVertex> source) override;
+    virtual std::unordered_map<std::string, long> *dijkstra(shared_ptr<StaticVertex> source) override;
 
     virtual shared_ptr<TransitiveClosure> transitiveClosure() override;
 

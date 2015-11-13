@@ -21,8 +21,8 @@ void enron_test();
 
 int main() {
 
-//    enron_test();
-    set_test();
+    enron_test();
+//    set_test();
     return 0;
     auto start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < 1; i++) {
@@ -118,7 +118,7 @@ void enron_test() {
 
     cout << "Reading dataset started.." << endl;
     auto start = std::chrono::high_resolution_clock::now();
-    string filename = "./dataset/enron/30_54_reachable.enron";
+    string filename = "./dataset/enron/test.enron";
     shared_ptr<enron_parser> ep(new enron_parser(filename));
     shared_ptr<TempGraph> tg(ep->getTG());
     auto finish = std::chrono::high_resolution_clock::now();
@@ -128,12 +128,12 @@ void enron_test() {
     cout << "Temporal Edges number: " << tg->getEdgeNumber() << endl << endl;
 
 
-//    shared_ptr<TempGraph> tg_small(ep->get_small_graph(3));
+//    shared_ptr<TempGraph> tg_small(ep->get_small_graph(5));
 //    cout << "Vert number: " << tg_small->getVertsNumber() << endl;
 //    cout << "Edges number: " << tg_small->getEdgeNumber() << endl;
 //    ep->save_graph("./dataset/enron/test.enron", tg_small);
 //    tg_small.reset();
-
+//
 //    return;
 //    cout << ep->get_terms(ep->getRoot(), 0)->size() << endl;
 
@@ -158,7 +158,7 @@ void enron_test() {
     std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count() << endl << endl;
 
 //    cout << "Transitive Closure: " << endl;
-    cout << tr_cl->toString();
+//    cout << tr_cl->toString();
 
     int i = 2;
     cout << "Calculating wMST(alg6) with i = " << i << " is started.." << endl;

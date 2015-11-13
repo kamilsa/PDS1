@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <unordered_map>
 #include "sgr.h"
 
 
@@ -208,11 +209,11 @@ std::string StaticGraph::toString() {
 
 StaticGraph *dist = new StaticGraph();// transitive closure
 
-std::map<string, long> *StaticGraph::dijkstra(shared_ptr<StaticVertex> source) {
-    std::map<string, long> *dist = new std::map<string, long>();
+std::unordered_map<string, long> *StaticGraph::dijkstra(shared_ptr<StaticVertex> source) {
+    std::unordered_map<string, long> *dist = new std::unordered_map<string, long>();
 
     // if we need keep previous vertexes in path
-//    std::map<shared_ptr<StaticVertex>, shared_ptr<StaticVertex>> *prev = new std::map<shared_ptr<StaticVertex>, shared_ptr<StaticVertex>>();
+//    std::unordered_map<shared_ptr<StaticVertex>, shared_ptr<StaticVertex>> *prev = new std::unordered_map<shared_ptr<StaticVertex>, shared_ptr<StaticVertex>>();
     std::queue<shared_ptr<StaticVertex>> *q = new std::queue<shared_ptr<StaticVertex>>();
     q->push(source);
     (*dist)[source->getName()] = 0;
@@ -818,7 +819,7 @@ std::string TransitiveClosure::toString() {
     return StaticGraph::toString();
 }
 
-std::map<std::string, long> *TransitiveClosure::dijkstra(shared_ptr<StaticVertex> source) {
+std::unordered_map<std::string, long> *TransitiveClosure::dijkstra(shared_ptr<StaticVertex> source) {
     return StaticGraph::dijkstra(source);
 }
 
