@@ -18,13 +18,22 @@
 using namespace std;
 
 class StaticVertex;
+
 class StaticEdge;
+
 class StaticGraph;
+
 class TransitiveClosure;
+
 class Tree;
 
+struct classcomp;
 
-class StaticVertex{
+struct classcomp {
+    bool operator()(const shared_ptr<StaticVertex> &lhs, const shared_ptr<StaticVertex> &rhs) const;
+};
+
+class StaticVertex {
 private:
     std::string name;
 public:
@@ -34,16 +43,13 @@ public:
 
     ~StaticVertex();
 
-    std::string getName();
+    std::string getName() const;
 
     void setName(std::string name);
 
-    bool operator < (StaticVertex);
-
-    bool operator > (StaticVertex);
 };
 
-class StaticEdge{
+class StaticEdge {
 private:
     shared_ptr<StaticVertex> from;
     shared_ptr<StaticVertex> to;
@@ -68,25 +74,27 @@ public:
     std::string toString();
 };
 
-class StaticGraph{
-    struct myEntry{
+class StaticGraph {
+    struct myEntry {
         double density;
         shared_ptr<StaticVertex> value;
     };
 protected:
-    std::map<std::string,std::vector<StaticEdge*>*>* adj_list;
-    std::set<shared_ptr<StaticVertex>>* vertSet;
+    std::map<std::string, std::vector<StaticEdge *> *> *adj_list;
+    std::set<shared_ptr<StaticVertex>, classcomp> *vertSet;
     shared_ptr<StaticVertex> root; //
-    std::map<std::string, shared_ptr<StaticVertex>>* labelVert;
+    std::map<std::string, shared_ptr<StaticVertex>> *labelVert;
 
-    set<shared_ptr<StaticVertex>>* terms; // terminal vertices -- those, which we are trying to reach
+    set<shared_ptr<StaticVertex>, classcomp> *terms; // terminal vertices -- those, which we are trying to reach
 
-    void putInOrder(std::vector<myEntry*>* vec, myEntry* entr);
-    int entrBinSearchOrNext(std::vector<myEntry*>* vec, myEntry* entr);
+    void putInOrder(std::vector<myEntry *> *vec, myEntry *entr);
+
+    int entrBinSearchOrNext(std::vector<myEntry *> *vec, myEntry *entr);
+
 public:
     StaticGraph();
 
-    StaticGraph(StaticGraph* g);
+    StaticGraph(StaticGraph *g);
 
     virtual ~StaticGraph();
 
@@ -94,19 +102,19 @@ public:
 
     virtual void setRoot(shared_ptr<StaticVertex> v);
 
-    virtual std::set<shared_ptr<StaticVertex>>* getVertSet();
+    virtual std::set<shared_ptr<StaticVertex>, classcomp> *getVertSet();
 
     int get_edge_number();
 
-    virtual std::map<std::string, shared_ptr<StaticVertex>>* getLabelVertMap();
+    virtual std::map<std::string, shared_ptr<StaticVertex>> *getLabelVertMap();
 
     virtual void add_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, long weight);
 
     virtual void remove_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to);
 
-    virtual StaticEdge* hasEdge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to);
+    virtual StaticEdge *hasEdge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to);
 
-    set<shared_ptr<StaticVertex>>* get_terms();
+    set<shared_ptr<StaticVertex>, classcomp> *get_terms();
 
     void add_to_terms(shared_ptr<StaticVertex> v);
 
@@ -115,30 +123,36 @@ public:
     //calculates shortest path between vertex u and v within given graph, using Dijkstra method
 
     virtual //returns shortest paths from source
-    std::map<string, long>* dijkstra(shared_ptr<StaticVertex> source);
+    std::map<string, long> *dijkstra(shared_ptr<StaticVertex> source);
 
     virtual //returns transitive closure, executing dijkstra |V| times
     shared_ptr<TransitiveClosure> transitiveClosure();
 
-    virtual Tree* alg3(shared_ptr<TransitiveClosure>  tr_cl, int i, int k, shared_ptr<StaticVertex> root, std::set<shared_ptr<StaticVertex>>* X);
+    virtual Tree *alg3(shared_ptr<TransitiveClosure> tr_cl, int i, int k, shared_ptr<StaticVertex> root,
+                       std::set<shared_ptr<StaticVertex>, classcomp> *X);
 
     /*improved alg3*/
-    virtual Tree* alg4(shared_ptr<TransitiveClosure>  tr_cl, int i, int k, shared_ptr<StaticVertex> root, std::set<shared_ptr<StaticVertex>>* X);
+    virtual Tree *alg4(shared_ptr<TransitiveClosure> tr_cl, int i, int k, shared_ptr<StaticVertex> root,
+                       std::set<shared_ptr<StaticVertex>, classcomp> *X);
 
-    virtual Tree* alg5(shared_ptr<TransitiveClosure>  tr_cl, int i, int k, shared_ptr<StaticVertex> root, std::set<shared_ptr<StaticVertex>>* X, StaticEdge* e);
+    virtual Tree *alg5(shared_ptr<TransitiveClosure> tr_cl, int i, int k, shared_ptr<StaticVertex> root,
+                       std::set<shared_ptr<StaticVertex>, classcomp> *X, StaticEdge *e);
 
-    virtual Tree* alg6(shared_ptr<TransitiveClosure>  tr_cl, int i, int k, shared_ptr<StaticVertex> root, std::set<shared_ptr<StaticVertex>>* X);
+    virtual Tree *alg6(shared_ptr<TransitiveClosure> tr_cl, int i, int k, shared_ptr<StaticVertex> root,
+                       std::set<shared_ptr<StaticVertex>, classcomp> *X);
 
-    virtual Tree* alg7(shared_ptr<TransitiveClosure>  tr_cl, int i, int k, shared_ptr<StaticVertex> root, std::set<shared_ptr<StaticVertex>>* X, StaticEdge* e);
+    virtual Tree *alg7(shared_ptr<TransitiveClosure> tr_cl, int i, int k, shared_ptr<StaticVertex> root,
+                       std::set<shared_ptr<StaticVertex>, classcomp> *X, StaticEdge *e);
 };
 
 /*
  * class that represents transitive closure of static graph
  * inherited from StaticGraph
  */
-class TransitiveClosure : StaticGraph{
+class TransitiveClosure : StaticGraph {
 private:
-    int bin_search_or_next_edge(vector<StaticEdge*>* vect, StaticEdge* edge);
+    int bin_search_or_next_edge(vector<StaticEdge *> *vect, StaticEdge *edge);
+
 public:
     TransitiveClosure();
 
@@ -148,15 +162,15 @@ public:
 
     virtual void setRoot(shared_ptr<StaticVertex> v) override;
 
-    virtual std::set<shared_ptr<StaticVertex>>* getVertSet() override;
+    virtual std::set<shared_ptr<StaticVertex>, classcomp> *getVertSet() override;
 
-    virtual std::map<std::string, shared_ptr<StaticVertex>>* getLabelVertMap() override;
+    virtual std::map<std::string, shared_ptr<StaticVertex>> *getLabelVertMap() override;
 
     virtual void add_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, long weight) override;
 
     virtual void remove_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to) override;
 
-    virtual StaticEdge* hasEdge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to) override;
+    virtual StaticEdge *hasEdge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to) override;
 
     std::string toString() override;
 
@@ -169,23 +183,24 @@ public:
      * if there is no edge(u,v) return LONG_MAX
      */
     long costEdge(shared_ptr<StaticVertex> u, shared_ptr<StaticVertex> v);
+
     long costEdge(std::string u_name, std::string v_name);
 
     //returns minimum cost between u and v, where v is in X
-    long min_cost_edge(shared_ptr<StaticVertex> u, set<shared_ptr<StaticVertex>>* X);
+    long min_cost_edge(shared_ptr<StaticVertex> u, set<shared_ptr<StaticVertex>, classcomp> *X);
 
 };
 
 /*
  * Tree class, has feature to calculate density
  */
-class Tree : StaticGraph{
+class Tree : StaticGraph {
 private:
     long totalWeight;
 public:
     Tree();
 
-    Tree(Tree* tree);
+    Tree(Tree *tree);
 
 //    virtual ~Tree();
 
@@ -193,29 +208,33 @@ public:
 
     virtual void setRoot(shared_ptr<StaticVertex> v) override;
 
-    virtual std::set<shared_ptr<StaticVertex> >* getVertSet() override;
+    virtual std::set<shared_ptr<StaticVertex>, classcomp> *getVertSet() override;
 
-    virtual std::map<std::string, shared_ptr<StaticVertex>>* getLabelVertMap() override;
+    virtual std::map<std::string, shared_ptr<StaticVertex>> *getLabelVertMap() override;
 
-    virtual void add_edge(shared_ptr<StaticVertex>from, shared_ptr<StaticVertex>to, long weight) override;
+    virtual void add_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, long weight) override;
 
     /*returns the created tree after adding new edge*/
-    Tree* addEdgeWithCopy(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex>to, long weight);
+    Tree *addEdgeWithCopy(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, long weight);
 
-    virtual void remove_edge(shared_ptr<StaticVertex>from, shared_ptr<StaticVertex>to) override;
+    virtual void remove_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to) override;
 
-    virtual StaticEdge* hasEdge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to) override;
+    virtual StaticEdge *hasEdge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to) override;
 
     virtual std::string toString() override;
 
     long getTotalWeight();
 
     /*division of total weight by covered terms from X*/
-    double getDensity(std::set<shared_ptr<StaticVertex>>* X);
+    double getDensity(std::set<shared_ptr<StaticVertex>, classcomp> *X);
 
-    static Tree* merge(Tree* t1, Tree* t2);
+    static Tree *merge(Tree *t1, Tree *t2);
 };
 
-std::set<shared_ptr<StaticVertex>>* vert_intersect(std::set<shared_ptr<StaticVertex>>* s1, std::set<shared_ptr<StaticVertex>>* s2);
-std::set<shared_ptr<StaticVertex>>* vert_minus(std::set<shared_ptr<StaticVertex>>* s1, std::set<shared_ptr<StaticVertex>>* s2);
+std::set<shared_ptr<StaticVertex>, classcomp> *vert_intersect(std::set<shared_ptr<StaticVertex>, classcomp> *s1,
+                                                              std::set<shared_ptr<StaticVertex>, classcomp> *s2);
+
+std::set<shared_ptr<StaticVertex>, classcomp> *vert_minus(std::set<shared_ptr<StaticVertex>, classcomp> *s1,
+                                                          std::set<shared_ptr<StaticVertex>, classcomp> *s2);
+
 #endif //PDS1_SGR_H

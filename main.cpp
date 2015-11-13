@@ -22,6 +22,7 @@ void enron_test();
 int main() {
 
     enron_test();
+//    set_test();
     return 0;
     auto start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < 1; i++) {
@@ -82,7 +83,7 @@ void temp_graph_test() {
     cout << "\nTransitive closure: " << endl;
     cout << transClosure->toString();
     auto map = transClosure->getLabelVertMap(); // map to match string labels with vertexes
-    set<shared_ptr<StaticVertex>> *termSet = new set<shared_ptr<StaticVertex>>(); // set of terminals
+    set<shared_ptr<StaticVertex>, classcomp> *termSet = new set<shared_ptr<StaticVertex>, classcomp>(); // set of terminals
     termSet->insert(termSet->begin(), (*map)["1"]);
     termSet->insert(termSet->begin(), (*map)["2"]);
     termSet->insert(termSet->begin(), (*map)["3"]);
@@ -102,33 +103,20 @@ void temp_graph_test() {
 }
 
 void set_test() {
-    class pair {
-    public:
-        shared_ptr<StaticVertex> v1;
-        shared_ptr<StaticVertex> v2;
-    };
-    pair *p1, *p2;
-    p1 = new pair;
-    p2 = new pair;
-    shared_ptr<StaticVertex> v1(new StaticVertex("1"));
-    shared_ptr<StaticVertex> v2(new StaticVertex("2"));
-    std::set<pair *> *s = new std::set<pair *>();
-
-    p1->v1 = v1;
-    p1->v2 = v2;
-
-    p2->v1 = v1;
-    p2->v2 = v2;
-
-    s->insert(s->begin(), p1);
-    cout << s->size();
+//    StaticVertex* st = new StaticVertex("1");
+//    shared_ptr<StaticVertex> sh1(st);
+//    shared_ptr<StaticVertex> sh2(st);
+//    set<shared_ptr<StaticVertex>, classcomp>* s = new set<shared_ptr<StaticVertex>, classcomp>();
+//    s->insert(s->begin(), *st);
+//    cout << s->size();
+//    delete s;
 }
 
 void enron_test() {
 
     cout << "Reading dataset started.." << endl;
     auto start = std::chrono::high_resolution_clock::now();
-    string filename = "./dataset/enron/38_102_reachable.enron";
+    string filename = "./dataset/enron/30_54_reachable.enron";
     shared_ptr<enron_parser> ep(new enron_parser(filename));
     shared_ptr<TempGraph> tg(ep->getTG());
     auto finish = std::chrono::high_resolution_clock::now();
