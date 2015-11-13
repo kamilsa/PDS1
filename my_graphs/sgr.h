@@ -187,7 +187,7 @@ public:
     long costEdge(std::string u_name, std::string v_name);
 
     //returns minimum cost between u and v, where v is in X
-    long min_cost_edge(shared_ptr<StaticVertex> u, set<shared_ptr<StaticVertex>, classcomp> *X);
+    StaticEdge *min_cost_edge(shared_ptr<StaticVertex> u, set<shared_ptr<StaticVertex>, classcomp> *X);
 
 };
 

@@ -589,22 +589,15 @@ Tree *StaticGraph::alg7(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
     bool first = true;
     if (i == 1) {
         while (k > 0) {
-            long minCost = LONG_MAX;
-            shared_ptr<StaticVertex> minVert;// vert with lighter-weight total path from root
-            for (shared_ptr<StaticVertex> v : *X) { // by now finding minVert too costly, could be improved
-                long cost = tr_cl->costEdge(root, v); // O(N) method -- too costly as well
-                if (cost < minCost) {
-                    minCost = cost;
-                    minVert = v;
-                }
-            }
-//            long myMinCost = tr_cl->min_cost_edge(root, X);
-            cout << "his = " << minCost << " mine = " << myMinCost << endl;
-            if (minCost != LONG_MAX)
-                treeC->add_edge(root, minVert, minCost);
+            StaticEdge* min_edge = tr_cl->min_cost_edge(root,X);// edge with lighter-weight total path from root
+            if (min_edge != nullptr)
+                treeC->add_edge(root, min_edge->getTo(), min_edge->getWeight());
             k--;
-            std::set<shared_ptr<StaticVertex>, classcomp> *oldX = new std::set<shared_ptr<StaticVertex>, classcomp>(X->begin(), X->end());
-            X->erase(minVert);
+            std::set<shared_ptr<StaticVertex>, classcomp> *oldX = new std::set<shared_ptr<StaticVertex>, classcomp>(
+                    X->begin(), X->end());
+            if (min_edge != nullptr)
+                X->erase(min_edge->getTo());
+
             if (first) {
                 tree = treeC;
                 first = false;
@@ -625,7 +618,8 @@ Tree *StaticGraph::alg7(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
             (*den)[treeBest] = LONG_MAX;
             if (first) {
                 for (shared_ptr<StaticVertex> v : *tr_cl->getVertSet()) {
-                    Tree *treeP = alg7(tr_cl, i - 1, k, v, new std::set<shared_ptr<StaticVertex>, classcomp>(X->begin(), X->end()),
+                    Tree *treeP = alg7(tr_cl, i - 1, k, v,
+                                       new std::set<shared_ptr<StaticVertex>, classcomp>(X->begin(), X->end()),
                                        tr_cl->hasEdge(root, v));
                     treeP->add_edge(root, v, tr_cl->costEdge(root, v));
                     double treePWeight = treeP->getDensity(X);
@@ -676,7 +670,8 @@ Tree *StaticGraph::alg7(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
             k -= intersect->size();
             X = vert_minus(X, treeBest->getVertSet());
 
-            std::set<shared_ptr<StaticVertex>, classcomp> *oldX = new std::set<shared_ptr<StaticVertex>, classcomp>(X->begin(), X->end());
+            std::set<shared_ptr<StaticVertex>, classcomp> *oldX = new std::set<shared_ptr<StaticVertex>, classcomp>(
+                    X->begin(), X->end());
             if (first) {
                 tree = treeC;
                 first = false;
@@ -718,14 +713,14 @@ long TransitiveClosure::costEdge(std::string u_name, std::string v_name) {
     return LONG_MAX;
 }
 
-long TransitiveClosure::min_cost_edge(shared_ptr<StaticVertex> u, set<shared_ptr<StaticVertex>, classcomp> *X) {
+StaticEdge *TransitiveClosure::min_cost_edge(shared_ptr<StaticVertex> u, set<shared_ptr<StaticVertex>, classcomp> *X) {
     auto adj = (*adj_list)[u->getName()];
     for (auto el : *adj) {
         if (X->find(el->getTo()) != X->end()) {
-            return el->getWeight();
+            return el;
         }
     }
-    return LONG_MAX;
+    return nullptr;
 }
 
 int TransitiveClosure::bin_search_or_next_edge(vector<StaticEdge *> *vect, StaticEdge *edge) {
