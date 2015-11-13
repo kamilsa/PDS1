@@ -17,6 +17,11 @@ std::size_t KeyHasher::operator()(const shared_ptr<StaticVertex> &k) const {
 
     return ((hash<string>()(k->getName())));
 }
+
+bool equal_to<shared_ptr<StaticVertex>>::operator()(const shared_ptr<StaticVertex> &x,
+                                                    const shared_ptr<StaticVertex> &y) const {
+    return x->getName() == y->getName();
+}
 /*********************************************/
 /*         StaticVertex implementation       */
 /*********************************************/

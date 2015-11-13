@@ -103,12 +103,14 @@ void temp_graph_test() {
 }
 
 void set_test() {
-    StaticVertex* st = new StaticVertex("1");
-//    shared_ptr<StaticVertex> sh1(st);
-//    shared_ptr<StaticVertex> sh2(st);
+    StaticVertex* st1 = new StaticVertex("1");
+    StaticVertex* st2 = new StaticVertex("1");
+    shared_ptr<StaticVertex> sh1(st1);
+    shared_ptr<StaticVertex> sh2(st2);
     unordered_set<shared_ptr<StaticVertex>, KeyHasher>* s = new unordered_set<shared_ptr<StaticVertex>, KeyHasher>();
-//    s->insert(s->begin(), *st);
-//    cout << s->size();
+    s->insert(s->begin(), sh1);
+    s->insert(s->begin(), sh2);
+    cout << s->size();
 //    delete s;
 }
 

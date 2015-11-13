@@ -37,8 +37,15 @@ struct classcomp {
 
 struct KeyHasher
 {
-    std::size_t operator()(const shared_ptr<StaticVertex>& k) const;
+    std::size_t operator()(const shared_ptr<StaticVertex> &k) const;
 };
+
+namespace std {
+    template <> struct equal_to<shared_ptr<StaticVertex>>
+    {
+        bool operator()(const shared_ptr<StaticVertex> & x, const shared_ptr<StaticVertex> & y) const;
+    };
+}
 
 class StaticVertex {
 private:
