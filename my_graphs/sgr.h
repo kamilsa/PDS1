@@ -29,8 +29,15 @@ class Tree;
 
 struct classcomp;
 
+struct KeyHasher;
+
 struct classcomp {
     bool operator()(const shared_ptr<StaticVertex> &lhs, const shared_ptr<StaticVertex> &rhs) const;
+};
+
+struct KeyHasher
+{
+    std::size_t operator()(const shared_ptr<StaticVertex>& k) const;
 };
 
 class StaticVertex {

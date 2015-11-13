@@ -9,6 +9,14 @@
 bool classcomp::operator()(const shared_ptr<StaticVertex> &lhs, const shared_ptr<StaticVertex> &rhs) const {
     return lhs->getName() < rhs->getName();
 }
+
+std::size_t KeyHasher::operator()(const shared_ptr<StaticVertex> &k) const {
+    using std::size_t;
+    using std::hash;
+    using std::string;
+
+    return ((hash<string>()(k->getName())));
+}
 /*********************************************/
 /*         StaticVertex implementation       */
 /*********************************************/
@@ -931,4 +939,3 @@ std::set<shared_ptr<StaticVertex>, classcomp> *vert_minus(std::set<shared_ptr<St
     }
     return res;
 }
-

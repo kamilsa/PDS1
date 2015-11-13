@@ -21,8 +21,8 @@ void enron_test();
 
 int main() {
 
-    enron_test();
-//    set_test();
+//    enron_test();
+    set_test();
     return 0;
     auto start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < 1; i++) {
@@ -103,10 +103,10 @@ void temp_graph_test() {
 }
 
 void set_test() {
-//    StaticVertex* st = new StaticVertex("1");
+    StaticVertex* st = new StaticVertex("1");
 //    shared_ptr<StaticVertex> sh1(st);
 //    shared_ptr<StaticVertex> sh2(st);
-//    set<shared_ptr<StaticVertex>, classcomp>* s = new set<shared_ptr<StaticVertex>, classcomp>();
+    unordered_set<shared_ptr<StaticVertex>, KeyHasher>* s = new unordered_set<shared_ptr<StaticVertex>, KeyHasher>();
 //    s->insert(s->begin(), *st);
 //    cout << s->size();
 //    delete s;
