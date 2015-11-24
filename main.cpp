@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "my_graphs/tgr.h"
 #include "my_graphs/sgr.h"
 #include <stack>
@@ -19,19 +20,12 @@ void set_test();
 
 void enron_test();
 
+void write_to_file(int a);
+
 int main() {
 
     enron_test();
 //    set_test();
-    return 0;
-    auto start = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < 1; i++) {
-        temp_graph_test();
-//            cout << "iteration # " << i << endl;
-    }
-//        set_test();
-    auto finish = std::chrono::high_resolution_clock::now();
-    cout << "Execution time : " << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count();
     return 0;
 }
 
@@ -105,12 +99,20 @@ void temp_graph_test() {
 void set_test() {
     StaticVertex* st1 = new StaticVertex("1");
     StaticVertex* st2 = new StaticVertex("1");
+    StaticVertex* st3 = new StaticVertex("2");
+
     shared_ptr<StaticVertex> sh1(st1);
     shared_ptr<StaticVertex> sh2(st2);
-    unordered_set<shared_ptr<StaticVertex>, KeyHasher>* s = new unordered_set<shared_ptr<StaticVertex>, KeyHasher>();
-    s->insert(s->begin(), sh1);
-    s->insert(s->begin(), sh2);
-    cout << s->size();
+    shared_ptr<StaticVertex> sh3(st3);
+    set<shared_ptr<StaticVertex>, classcomp>* s1 = new set<shared_ptr<StaticVertex>, classcomp>();
+    set<shared_ptr<StaticVertex>, classcomp>* s2 = new set<shared_ptr<StaticVertex>, classcomp>();
+    s1->insert(s1->begin(), sh1);
+    s1->insert(s1->begin(), sh3);
+    s2->insert(s2->begin(), sh2);
+//    s2->insert(s2->begin(), sh3);
+    auto res = vert_minus(s1, s2);
+    for (auto el : *res)
+        cout << el->getName() << " ";
 //    delete s;
 }
 
@@ -128,7 +130,7 @@ void enron_test() {
     cout << "Temporal Edges number: " << tg->getEdgeNumber() << endl << endl;
 
 
-//    shared_ptr<TempGraph> tg_small(ep->get_small_graph(2));
+//    shared_ptr<TempGraph> tg_small(ep->get_small_graph(4));
 //    cout << "Vert number: " << tg_small->getVertsNumber() << endl;
 //    cout << "Edges number: " << tg_small->getEdgeNumber() << endl;
 //    ep->save_graph("./dataset/enron/test.enron", tg_small);
@@ -160,23 +162,31 @@ void enron_test() {
 //    cout << "Transitive Closure: " << endl;
 //    cout << tr_cl->toString();
 
-    int i = 3;
+    int i = 2;
     cout << "Calculating wMST(alg6) with i = " << i << " is started.." << endl;
     start = std::chrono::high_resolution_clock::now();
-    shared_ptr<Tree> wmst(sg->alg3(tr_cl, 2, terms->size(), sg->getRoot(), terms));
-//    shared_ptr<Tree> wmst(sg->alg4(tr_cl, 2, terms->size(), sg->getRoot(), terms));
+//    shared_ptr<Tree> wmst(sg->alg3(tr_cl, i, terms->size(), sg->getRoot(), terms));
+    shared_ptr<Tree> wmst(sg->alg4(tr_cl, i, terms->size(), sg->getRoot(), terms));
 //    shared_ptr<Tree> wmst(sg->alg6(tr_cl, i, terms->size(), sg->getRoot(), terms));
     finish = std::chrono::high_resolution_clock::now();
-    cout << "Calculating wMST is done within(ms) : " <<
-    std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count() << endl << endl;
+    cout << "MSTw weight is " << wmst->getTotalWeight() << endl;
+    int res = (int) std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
+    cout << "Calculating wMST is done within(ms) : " << res << endl << endl;
 
 //    cout << "wMST: " << endl;
 //    cout << wmst->toString();
-
+    write_to_file(res);
     wmst.reset();
     tr_cl.reset();
     sg.reset();
     tg.reset();
     ep.reset();
-    delete(terms); // FIX it
+    terms->clear();
+//    delete(terms); // FIX it
+}
+
+void write_to_file(int a) {
+    ofstream f("tmp.txt");
+    f << a;
+    f.close();
 }
