@@ -304,32 +304,26 @@ Tree *StaticGraph::alg3(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
         }
     }
     else {
-        std::map<Tree *, double> *den = new std::map<Tree *, double>();
+        double bestDen;
         while (k > 0) {
             Tree *treeBest = new Tree();
-            (*den)[treeBest] = LONG_MAX;
+            bestDen = LONG_MAX;
             for (shared_ptr<StaticVertex> v : *tr_cl->getVertSet()) {
                 for (int kp = 1; kp <= k; ++kp) {
                     Tree *treeP = alg3(tr_cl, i - 1, kp, v,
                                        new std::set<shared_ptr<StaticVertex>, classcomp>(X->begin(), X->end()));
-                    int size = X->size();
                     treeP->add_edge(root, v, tr_cl->costEdge(root, v));
-                    int covered = 0; // how many terminals are covered
-//                    for (shared_ptr<StaticVertex>v : *X) {
-//                        if (treeP->getVertSet()->find(v) != treeP->getVertSet()->end())
-//                            covered++;
-//                    }
-//                    double treePWeight = (double) treeP->getTotalWeight() / covered;
                     double treePWeight = treeP->getDensity(X);
-                    if ((*den)[treeBest] > treePWeight) {
+                    if (bestDen > treePWeight) {
                         treeBest = treeP;
-                        (*den)[treeBest] = treePWeight;
+                        bestDen = treePWeight;
                     }
                 }
             }
             tree = Tree::merge(tree, treeBest); // TODO costly
             std::set<shared_ptr<StaticVertex>, classcomp> *intersect = vert_intersect(X, treeBest->getVertSet());
             k -= intersect->size();
+            cout << "k = " << k << endl;
             X = vert_minus(X, treeBest->getVertSet());
         }
     }
@@ -353,31 +347,26 @@ Tree *StaticGraph::alg4(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
         }
     }
     else {
-        std::map<Tree *, double> *den = new std::map<Tree *, double>();
+        double bestDen;
         while (k > 0) {
             Tree *treeBest = new Tree();
-            (*den)[treeBest] = LONG_MAX;
+            bestDen = LONG_MAX;
             for (shared_ptr<StaticVertex> v : *tr_cl->getVertSet()) {
                 StaticEdge *e = tr_cl->hasEdge(root, v); ///!! If there is no such e could be problems
                 if (e == nullptr) continue;
                 Tree *treeP = alg5(tr_cl, i - 1, k, v,
                                    new std::set<shared_ptr<StaticVertex>, classcomp>(X->begin(), X->end()), e);
-                int size = X->size();
                 treeP->add_edge(root, v, tr_cl->costEdge(root, v));
-                int covered = 0; // how many terminals are covered
-                for (shared_ptr<StaticVertex> v : *X) {
-                    if (treeP->getVertSet()->find(v) != treeP->getVertSet()->end())
-                        covered++;
-                }
-                double treePWeight = (double) treeP->getTotalWeight() / covered;
-                if ((*den)[treeBest] > treePWeight) {
+                double treePWeight = treeP->getDensity(X);
+                if (bestDen > treePWeight) {
                     treeBest = treeP;
-                    (*den)[treeBest] = treePWeight;
+                    bestDen = treePWeight;
                 }
             }
             tree = Tree::merge(tree, treeBest);
             std::set<shared_ptr<StaticVertex>, classcomp> *intersect = vert_intersect(X, treeBest->getVertSet());
             k -= intersect->size();
+            cout << "k = " << k << endl;
             X = vert_minus(X, treeBest->getVertSet());
         }
     }
@@ -415,19 +404,19 @@ Tree *StaticGraph::alg5(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
         }
     }
     else {
-        std::map<Tree *, double> *den = new std::map<Tree *, double>();
+        double bestDen;
         while (k > 0) {
             Tree *treeBest = new Tree();
-            (*den)[treeBest] = LONG_MAX;
+            bestDen = LONG_MAX;
             for (shared_ptr<StaticVertex> v : *tr_cl->getVertSet()) {
                 Tree *treeP = alg5(tr_cl, i - 1, k, v,
                                    new std::set<shared_ptr<StaticVertex>, classcomp>(X->begin(), X->end()),
                                    tr_cl->hasEdge(root, v));
                 treeP->add_edge(root, v, tr_cl->costEdge(root, v));
                 double treePWeight = treeP->getDensity(X);
-                if ((*den)[treeBest] > treePWeight) {
+                if (bestDen > treePWeight) {
                     treeBest = treeP;
-                    (*den)[treeBest] = treePWeight;
+                    bestDen = treePWeight;
                 }
             }
             treeC = Tree::merge(treeC, treeBest);
@@ -504,12 +493,12 @@ Tree *StaticGraph::alg6(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
         }
     }
     else {
-        std::map<Tree *, double> *den = new std::map<Tree *, double>();
+        double bestDen;
         bool first = true;
         std::vector<myEntry *> *sorted = new std::vector<myEntry *>();
         while (k > 0) {
             Tree *treeBest = new Tree();
-            (*den)[treeBest] = LONG_MAX;
+            bestDen = LONG_MAX;
 
             //-----------------------------------------------------
             if (first) {
@@ -521,9 +510,9 @@ Tree *StaticGraph::alg6(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
                                        e);
                     treeP->add_edge(root, v, e->getWeight());
                     double treePWeight = treeP->getDensity(X);
-                    if ((*den)[treeBest] > treePWeight) {
+                    if (bestDen > treePWeight) {
                         treeBest = treeP;
-                        (*den)[treeBest] = treePWeight;
+                        bestDen = treePWeight;
                     }
                     //putting with sorting:
                     myEntry *entry = new myEntry;
@@ -544,9 +533,9 @@ Tree *StaticGraph::alg6(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
                                            e);
                         treeP->add_edge(root, v, e->getWeight());
                         double treePWeight = treeP->getDensity(X);
-                        if ((*den)[treeBest] > treePWeight) {
+                        if (bestDen > treePWeight) {
                             treeBest = treeP;
-                            (*den)[treeBest] = treePWeight;
+                            bestDen = treePWeight;
                         }
                         entry->density = treePWeight;
                         if (treePWeight < t_best)
@@ -567,6 +556,7 @@ Tree *StaticGraph::alg6(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
             tree = Tree::merge(tree, treeBest);
             std::set<shared_ptr<StaticVertex>, classcomp> *intersect = vert_intersect(X, treeBest->getVertSet());
             k -= intersect->size();
+            cout << "k = " << k << endl;
             X = vert_minus(X, treeBest->getVertSet());
         }
     }
@@ -603,11 +593,12 @@ Tree *StaticGraph::alg7(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
         }
     }
     else {
-        std::map<Tree *, double> *den = new std::map<Tree *, double>();
+//        std::map<Tree *, double> *den = new std::map<Tree *, double>();
+        double bestDen;
         std::vector<myEntry *> *sorted = new std::vector<myEntry *>();
         while (k > 0) {
             Tree *treeBest = new Tree();
-            (*den)[treeBest] = LONG_MAX;
+            bestDen = LONG_MAX;
             if (first) {
                 for (shared_ptr<StaticVertex> v : *tr_cl->getVertSet()) {
                     StaticEdge* edge = tr_cl->hasEdge(root, v);
@@ -615,9 +606,9 @@ Tree *StaticGraph::alg7(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
                                        new std::set<shared_ptr<StaticVertex>, classcomp>(X->begin(), X->end()), edge);
                     treeP->add_edge(root, v, tr_cl->costEdge(root, v));
                     double treePWeight = treeP->getDensity(X);
-                    if ((*den)[treeBest] > treePWeight) {
+                    if (bestDen > treePWeight) {
                         treeBest = treeP;
-                        (*den)[treeBest] = treePWeight;
+                        bestDen = treePWeight;
                     }
                     myEntry *entry = new myEntry;
                     entry->value = v;
@@ -637,9 +628,9 @@ Tree *StaticGraph::alg7(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
                                            e);
                         treeP->add_edge(root, v, e->getWeight());
                         double treePWeight = treeP->getDensity(X);
-                        if ((*den)[treeBest] > treePWeight) {
+                        if (bestDen > treePWeight) {
                             treeBest = treeP;
-                            (*den)[treeBest] = treePWeight;
+                            bestDen = treePWeight;
                         }
                         entry->density = treePWeight;
                         if (treePWeight < t_best)

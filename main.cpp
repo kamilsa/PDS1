@@ -160,11 +160,11 @@ void enron_test() {
 //    cout << "Transitive Closure: " << endl;
 //    cout << tr_cl->toString();
 
-    int i = 3;
+    int i = 2;
     cout << "Calculating wMST(alg6) with i = " << i << " is started.." << endl;
     start = std::chrono::high_resolution_clock::now();
-    shared_ptr<Tree> wmst(sg->alg3(tr_cl, 2, terms->size(), sg->getRoot(), terms));
-//    shared_ptr<Tree> wmst(sg->alg4(tr_cl, 2, terms->size(), sg->getRoot(), terms));
+//    shared_ptr<Tree> wmst(sg->alg3(tr_cl, 2, terms->size(), sg->getRoot(), terms));
+    shared_ptr<Tree> wmst(sg->alg4(tr_cl, 2, terms->size(), sg->getRoot(), terms));
 //    shared_ptr<Tree> wmst(sg->alg6(tr_cl, i, terms->size(), sg->getRoot(), terms));
     finish = std::chrono::high_resolution_clock::now();
     cout << "Calculating wMST is done within(ms) : " <<
