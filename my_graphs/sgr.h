@@ -36,15 +36,14 @@ struct classcomp {
     bool operator()(const shared_ptr<StaticVertex> &lhs, const shared_ptr<StaticVertex> &rhs) const;
 };
 
-struct KeyHasher
-{
+struct KeyHasher {
     std::size_t operator()(const shared_ptr<StaticVertex> &k) const;
 };
 
 namespace std {
-    template <> struct equal_to<shared_ptr<StaticVertex>>
-    {
-        bool operator()(const shared_ptr<StaticVertex> & x, const shared_ptr<StaticVertex> & y) const;
+    template<>
+    struct equal_to<shared_ptr<StaticVertex> > {
+        bool operator()(const shared_ptr<StaticVertex> &x, const shared_ptr<StaticVertex> &y) const;
     };
 }
 
@@ -98,7 +97,7 @@ protected:
     std::map<std::string, std::vector<StaticEdge *> *> *adj_list;
     std::set<shared_ptr<StaticVertex>, classcomp> *vertSet;
     shared_ptr<StaticVertex> root; //
-    std::map<std::string, shared_ptr<StaticVertex>> *labelVert;
+    std::map<std::string, shared_ptr<StaticVertex> > *labelVert;
 
     set<shared_ptr<StaticVertex>, classcomp> *terms; // terminal vertices -- those, which we are trying to reach
 
@@ -121,7 +120,7 @@ public:
 
     int get_edge_number();
 
-    virtual std::map<std::string, shared_ptr<StaticVertex>> *getLabelVertMap();
+    virtual std::map<std::string, shared_ptr<StaticVertex> > *getLabelVertMap();
 
     virtual void add_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, long weight);
 
@@ -179,7 +178,7 @@ public:
 
     virtual std::set<shared_ptr<StaticVertex>, classcomp> *getVertSet() override;
 
-    virtual std::map<std::string, shared_ptr<StaticVertex>> *getLabelVertMap() override;
+    virtual std::map<std::string, shared_ptr<StaticVertex> > *getLabelVertMap() override;
 
     virtual void add_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, long weight) override;
 
@@ -225,11 +224,11 @@ public:
 
     virtual std::set<shared_ptr<StaticVertex>, classcomp> *getVertSet() override;
 
-    virtual std::map<std::string, shared_ptr<StaticVertex>> *getLabelVertMap() override;
+    virtual std::map<std::string, shared_ptr<StaticVertex> > *getLabelVertMap() override;
 
     virtual void add_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, long weight) override;
 
-    /*returns the created tree after adding new edge*/
+    /*returns the created tree after adding new edge*/ //TODO: mistake here!!!!!!
     Tree *addEdgeWithCopy(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, long weight);
 
     virtual void remove_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to) override;
@@ -242,6 +241,9 @@ public:
 
     /*division of total weight by covered terms from X*/
     double getDensity(std::set<shared_ptr<StaticVertex>, classcomp> *X);
+
+    /*calculates density of tree on set X if edge e would be added there*/
+    double getDensityWithEdge(set<shared_ptr<StaticVertex>, classcomp> *X, StaticEdge *e);
 
     static Tree *merge(Tree *t1, Tree *t2);
 };

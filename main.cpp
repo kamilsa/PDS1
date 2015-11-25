@@ -103,6 +103,11 @@ void temp_graph_test() {
 }
 
 void set_test() {
+    double a1 = numeric_limits<double>::infinity();
+    double a2 = numeric_limits<double>::infinity();
+    cout << a1 + a2;
+    return;
+
     StaticVertex* st1 = new StaticVertex("1");
     StaticVertex* st2 = new StaticVertex("1");
     shared_ptr<StaticVertex> sh1(st1);
@@ -118,7 +123,7 @@ void enron_test() {
 
     cout << "Reading dataset started.." << endl;
     auto start = std::chrono::high_resolution_clock::now();
-    string filename = "./dataset/enron/test.enron";
+    string filename = "./dataset/enron/85_187.enron";
     shared_ptr<enron_parser> ep(new enron_parser(filename));
     shared_ptr<TempGraph> tg(ep->getTG());
     auto finish = std::chrono::high_resolution_clock::now();
@@ -128,7 +133,7 @@ void enron_test() {
     cout << "Temporal Edges number: " << tg->getEdgeNumber() << endl << endl;
 
 
-//    shared_ptr<TempGraph> tg_small(ep->get_small_graph(2));
+//    shared_ptr<TempGraph> tg_small(ep->get_small_graph(10));
 //    cout << "Vert number: " << tg_small->getVertsNumber() << endl;
 //    cout << "Edges number: " << tg_small->getEdgeNumber() << endl;
 //    ep->save_graph("./dataset/enron/test.enron", tg_small);
@@ -163,10 +168,11 @@ void enron_test() {
     int i = 2;
     cout << "Calculating wMST(alg6) with i = " << i << " is started.." << endl;
     start = std::chrono::high_resolution_clock::now();
-//    shared_ptr<Tree> wmst(sg->alg3(tr_cl, 2, terms->size(), sg->getRoot(), terms));
-    shared_ptr<Tree> wmst(sg->alg4(tr_cl, 2, terms->size(), sg->getRoot(), terms));
-//    shared_ptr<Tree> wmst(sg->alg6(tr_cl, i, terms->size(), sg->getRoot(), terms));
+//    shared_ptr<Tree> wmst(sg->alg3(tr_cl, i, terms->size(), sg->getRoot(), terms));
+//    shared_ptr<Tree> wmst(sg->alg4(tr_cl, i, terms->size(), sg->getRoot(), terms));
+    shared_ptr<Tree> wmst(sg->alg6(tr_cl, i, terms->size(), sg->getRoot(), terms));
     finish = std::chrono::high_resolution_clock::now();
+    cout << "Weight of MSTw is " << wmst->getTotalWeight() << endl;
     cout << "Calculating wMST is done within(ms) : " <<
     std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count() << endl << endl;
 
@@ -178,5 +184,6 @@ void enron_test() {
     sg.reset();
     tg.reset();
     ep.reset();
-    delete(terms); // FIX it
+    terms->clear();
+//    delete(terms); // FIX it
 }

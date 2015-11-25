@@ -121,10 +121,10 @@ class TempGraph{
 private:
 //    std::vector<TempVertex*>* vertList; // FIX: does not work properly
     enum sort_type{ASC, DESC};
-    std::set<shared_ptr<TempVertex>>* vertSet;
+    std::set<shared_ptr<TempVertex> >* vertSet;
     std::vector<TempEdge*>* edgeList;
     std::map<std::string, std::vector<TempEdge *> *> *sal;
-    map<string, shared_ptr<TempVertex>> *label2Vert;
+    map<string, shared_ptr<TempVertex> > *label2Vert;
     void quicksort(std::vector<TempEdge*>* arr, int low, int high, sort_type type);
     int partition(std::vector<TempEdge*>* arr, int low, int high, sort_type type);
     void swap(std::vector<TempEdge*>* arr, int i1, int i2);
@@ -149,7 +149,7 @@ public:
      *
      */
     void sortAdjacencyList(sort_type type);
-    std::set<shared_ptr<TempVertex>>* getVertSet();
+    std::set<shared_ptr<TempVertex> >* getVertSet();
     /* construct time minimum spanning tree via assigning to each vertex its previous vertex and earliest arrival time
      * low_bound -- is the low time bound of observatin period
      * up_bound -- is the upper time bound of observation period
