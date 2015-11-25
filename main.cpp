@@ -103,8 +103,8 @@ void temp_graph_test() {
 }
 
 void set_test() {
-    double a1 = numeric_limits<double>::infinity();
-    double a2 = numeric_limits<double>::infinity();
+    float a1 = numeric_limits<float>::infinity();
+    float a2 = numeric_limits<float>::infinity();
     cout << a1 + a2;
     return;
 
@@ -123,7 +123,7 @@ void enron_test() {
 
     cout << "Reading dataset started.." << endl;
     auto start = std::chrono::high_resolution_clock::now();
-    string filename = "./dataset/enron/85_187.enron";
+    string filename = "./dataset/enron/test.enron";
     shared_ptr<enron_parser> ep(new enron_parser(filename));
     shared_ptr<TempGraph> tg(ep->getTG());
     auto finish = std::chrono::high_resolution_clock::now();

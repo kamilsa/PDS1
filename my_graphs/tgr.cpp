@@ -34,11 +34,11 @@ void TempVertex::setP(shared_ptr<TempVertex> P) {
     this->P = P;
 }
 
-long TempVertex::getA() {
+float TempVertex::getA() {
     return A;
 }
 
-void TempVertex::setA(long A) {
+void TempVertex::setA(float A) {
     this->A = A;
 }
 
@@ -62,7 +62,7 @@ void TempVertex::add_arr_edge(TempEdge *edge) {
 //    std::cout << std::endl;
 }
 
-int TempVertex::binarySearchOrNext(long target, int low, int high) {
+int TempVertex::binarySearchOrNext(float target, int low, int high) {
     if (high < low)
         return low;
     else {
@@ -77,7 +77,7 @@ int TempVertex::binarySearchOrNext(long target, int low, int high) {
 }
 
 //-----------------------------------------------------------------
-TempEdge::TempEdge(shared_ptr<TempVertex> source, shared_ptr<TempVertex> destination, long startTime, long arrTime, long weight) {
+TempEdge::TempEdge(shared_ptr<TempVertex> source, shared_ptr<TempVertex> destination, float startTime, float arrTime, float weight) {
     this->source = source;
     this->destination = destination;
     this->startTime = startTime;
@@ -97,27 +97,27 @@ void TempEdge::setDestination(shared_ptr<TempVertex> destination) {
     TempEdge::destination = destination;
 }
 
-long TempEdge::getStartTime() const {
+float TempEdge::getStartTime() const {
     return startTime;
 }
 
-void TempEdge::setStartTime(long startTime) {
+void TempEdge::setStartTime(float startTime) {
     TempEdge::startTime = startTime;
 }
 
-long TempEdge::getArrTime() const {
+float TempEdge::getArrTime() const {
     return arrTime;
 }
 
-void TempEdge::setArrTime(long arrTime) {
+void TempEdge::setArrTime(float arrTime) {
     TempEdge::arrTime = arrTime;
 }
 
-long TempEdge::getWeight(){
+float TempEdge::getWeight(){
     return this->weight;
 }
 
-void TempEdge::setWeight(long weight) {
+void TempEdge::setWeight(float weight) {
     this->weight = weight;
 }
 
@@ -157,7 +157,7 @@ TempGraph::~TempGraph(){
     delete label2Vert;
 }
 
-void TempGraph::addEdge(shared_ptr<TempVertex> from, shared_ptr<TempVertex> to, long startTime, long arrTime, long weight) {
+void TempGraph::addEdge(shared_ptr<TempVertex> from, shared_ptr<TempVertex> to, float startTime, float arrTime, float weight) {
     if ((*sal)[from->getName()] == 0x00) {
         vertSet->insert(from);
         (*sal)[from->getName()] = new std::vector<TempEdge *>();
@@ -181,7 +181,7 @@ void TempGraph::addEdge(shared_ptr<TempVertex> from, shared_ptr<TempVertex> to, 
 
 
     auto temp_vector = (*sal)[from->getName()];
-//    long weight = arrTime - startTime; // !!!! YOU CAN DEFINE WEIGHT DIFFERENTLY
+//    float weight = arrTime - startTime; // !!!! YOU CAN DEFINE WEIGHT DIFFERENTLY
     TempEdge *tempEdge = new TempEdge(from, to, startTime, arrTime, weight);
     temp_vector->insert(temp_vector->end(), tempEdge);
 
@@ -296,7 +296,7 @@ void TempGraph::swap(std::vector<TempEdge *> *arr, int i1, int i2) {
     (*arr)[i2] = temp;
 }
 
-void TempGraph::mst_a1(shared_ptr<TempVertex> root, long low_bound, long up_bound, bool need) {
+void TempGraph::mst_a1(shared_ptr<TempVertex> root, float low_bound, float up_bound, bool need) {
     std::vector<TempEdge *> *edges;
     if (need) {
         edges = deriveSortedEdgeList();
@@ -312,7 +312,7 @@ void TempGraph::mst_a1(shared_ptr<TempVertex> root, long low_bound, long up_boun
 
     for (shared_ptr<TempVertex> v : (*vertSet)) {
         if (v != root) {
-            v->setA(LONG_MAX);
+            v->setA(numeric_limits<float>::infinity());
             v->setP(root);
         }
         else {
@@ -325,8 +325,8 @@ void TempGraph::mst_a1(shared_ptr<TempVertex> root, long low_bound, long up_boun
     for (TempEdge *e : *edges) {
         shared_ptr<TempVertex> u = e->getSource();
         shared_ptr<TempVertex> v = e->getDestination();
-        long start_time = e->getStartTime();
-        long arr_time = e->getArrTime();
+        float start_time = e->getStartTime();
+        float arr_time = e->getArrTime();
 
         if (start_time >= u->getA() && arr_time < v->getA() && arr_time <= up_bound) {
             v->setA(arr_time);
@@ -339,7 +339,7 @@ std::set<shared_ptr<TempVertex> > *TempGraph::getVertSet() {
     return vertSet;
 }
 
-void TempGraph::mst_a2(shared_ptr<TempVertex> root, long low_bound, long up_bound, bool sort) {
+void TempGraph::mst_a2(shared_ptr<TempVertex> root, float low_bound, float up_bound, bool sort) {
     if (sort) {
         sortAdjacencyList(DESC);
     }
@@ -347,7 +347,7 @@ void TempGraph::mst_a2(shared_ptr<TempVertex> root, long low_bound, long up_boun
     struct mytuple {
         shared_ptr<TempVertex> v1;
         shared_ptr<TempVertex> v2;
-        long time;
+        float time;
     };
 
     std::map<shared_ptr<TempVertex> , int> pos;
@@ -356,7 +356,7 @@ void TempGraph::mst_a2(shared_ptr<TempVertex> root, long low_bound, long up_boun
     //initial step
     for (shared_ptr<TempVertex> u : (*vertSet)) {
         pos[u] = 0;
-        u->setA(LONG_MAX);
+        u->setA(numeric_limits<float>::infinity());
     }
     std::stack<mytuple> *st = new std::stack<mytuple>();
     mytuple temp;
@@ -369,7 +369,7 @@ void TempGraph::mst_a2(shared_ptr<TempVertex> root, long low_bound, long up_boun
         st->pop();
         shared_ptr<TempVertex> u = tup.v1;
         shared_ptr<TempVertex> v = tup.v2;
-        long tav = tup.time; // t arrival v
+        float tav = tup.time; // t arrival v
         if (tav < v->getA()) {
             v->setA(tav);
             v->setP(u);
@@ -378,8 +378,8 @@ void TempGraph::mst_a2(shared_ptr<TempVertex> root, long low_bound, long up_boun
                 TempEdge *e = (*edge_list)[pos[v]];
                 v = e->getSource();
                 shared_ptr<TempVertex> vp = e->getDestination();
-                long start = e->getStartTime();
-                long arr = e->getArrTime();
+                float start = e->getStartTime();
+                float arr = e->getArrTime();
                 while (pos[v] < edge_list->size() && v->getA() <= start) {
                     mytuple temp_tup;
                     temp_tup.v1 = v;
@@ -410,8 +410,8 @@ void TempGraph::sortAdjacencyList(TempGraph::sort_type type) {
 StaticGraph *TempGraph::getStaticGraph(shared_ptr<TempVertex> root) {
     //triple of vertex and its corresponding arrival time, and weight of in-edge
     struct Triple {
-        long corArrTime;
-        long weight;
+        float corArrTime;
+        float weight;
         shared_ptr<StaticVertex>staticVertex;
     };
 
@@ -436,7 +436,7 @@ StaticGraph *TempGraph::getStaticGraph(shared_ptr<TempVertex> root) {
                 vect->insert(vect->end(), pair);
             }
             Triple *pair1 = new Triple;
-            pair1->corArrTime = LONG_MAX;
+            pair1->corArrTime = numeric_limits<float>::infinity();
             pair1->weight = 0;
             shared_ptr<StaticVertex> temp(new StaticVertex((*t_edges)[0]->getDestination()->getName()));
             pair1->staticVertex = temp;
@@ -476,7 +476,7 @@ StaticGraph *TempGraph::getStaticGraph(shared_ptr<TempVertex> root) {
 
             Triple * from = nullptr;
             Triple * to = nullptr;
-            long weight;
+            float weight;
             if(u != root) {
                 for (int j = 0; j < uPairs->size() - 1; j++) {
                     if ((*uPairs)[j]->corArrTime <= t_edge->getStartTime() &&

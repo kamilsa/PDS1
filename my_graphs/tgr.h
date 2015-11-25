@@ -24,19 +24,19 @@ class TempGraph;
  * Class vertex -- represents vertex in temporal graph
  * Consist of:
  * TempVertex* P -- stores source vertex for given vertex
- * long A -- stores earlies arrival time in UNIX format
+ * float A -- stores earlies arrival time in UNIX format
  */
 class TempVertex {
 private:
     std::string name;
     shared_ptr<TempVertex> P;
-    long A;
+    float A;
 
     /* list of tuples with start and arrival times sorted in non-decreasing order of their arrival time
      * Is needed to transform temporal graph to static
      */
     std::vector<TempEdge*>* sas;
-    int binarySearchOrNext(long target, int low, int high);
+    int binarySearchOrNext(float target, int low, int high);
 public:
     TempVertex(std::string name);
     ~TempVertex();
@@ -49,9 +49,9 @@ public:
 
     void setP(shared_ptr<TempVertex> P);
 
-    long getA();
+    float getA();
 
-    void setA(long A);
+    void setA(float A);
 
     /*
      * adds arrival edge to this node, with corresponding start time to list if SAs. List become automatically sorted
@@ -67,8 +67,8 @@ public:
  * Consist of:
  * TempVertex *source -- source temporal vertex
  * TempVertex *destination -- destination temporal vertex
- * long startTime -- starting time for this edge, supposed to keep UNIX time
- * long arrTime -- arrival time for edge, supposed to keep UNIX time
+ * float startTime -- starting time for this edge, supposed to keep UNIX time
+ * float arrTime -- arrival time for edge, supposed to keep UNIX time
  */
 class TempEdge {
 private:
@@ -76,11 +76,11 @@ private:
 //    TempVertex *source;
     shared_ptr<TempVertex> destination;
 //    TempVertex *destination;
-    long startTime;
-    long arrTime;
-    long weight;
+    float startTime;
+    float arrTime;
+    float weight;
 public:
-    TempEdge(shared_ptr<TempVertex> source, shared_ptr<TempVertex> destination, long startTime, long arrTime, long weight);
+    TempEdge(shared_ptr<TempVertex> source, shared_ptr<TempVertex> destination, float startTime, float arrTime, float weight);
 
     ~TempEdge();
 
@@ -94,17 +94,17 @@ public:
 
     void setDestination(shared_ptr<TempVertex> destination);
 
-    long getStartTime() const;
+    float getStartTime() const;
 
-    void setStartTime(long startTime);
+    void setStartTime(float startTime);
 
-    long getArrTime() const;
+    float getArrTime() const;
 
-    void setArrTime(long arrTime);
+    void setArrTime(float arrTime);
 
-    long getWeight();
+    float getWeight();
 
-    void setWeight(long weight);
+    void setWeight(float weight);
 
     std::string toString();
 };
@@ -131,7 +131,7 @@ private:
 public:
     TempGraph();
     ~TempGraph();
-    void addEdge(shared_ptr<TempVertex> from, shared_ptr<TempVertex> to, long startTime, long arrTime, long weight);
+    void addEdge(shared_ptr<TempVertex> from, shared_ptr<TempVertex> to, float startTime, float arrTime, float weight);
     void addEdge(TempEdge* edge);
 
     int getVertsNumber();
@@ -157,7 +157,7 @@ public:
      * adjacency list is already sorted and all we need is we just to go through each
      * list and get edges in order of their occurency
     */
-    void mst_a1(shared_ptr<TempVertex> root, long low_bound, long up_bound, bool needToSort); // fill out A and P fields for each vertex.
+    void mst_a1(shared_ptr<TempVertex> root, float low_bound, float up_bound, bool needToSort); // fill out A and P fields for each vertex.
 
     /* constructs time minimum spanning tree using sorted adjacency list and assigning to each vertex corresponding
      * previous one and earliest arrival time
@@ -165,7 +165,7 @@ public:
      * up_bound -- is the upper time bound of observation period
      * sort -- defines if adjacency list is supposed to sort (it could be already sorted)
      */
-    void mst_a2(shared_ptr<TempVertex> root,  long low_bound, long up_bound, bool sort);
+    void mst_a2(shared_ptr<TempVertex> root,  float low_bound, float up_bound, bool sort);
 
     StaticGraph* getStaticGraph(shared_ptr<TempVertex> root);
 };

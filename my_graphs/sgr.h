@@ -67,15 +67,15 @@ class StaticEdge {
 private:
     shared_ptr<StaticVertex> from;
     shared_ptr<StaticVertex> to;
-    long weight;
+    float weight;
 public:
-    StaticEdge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, long weight);
+    StaticEdge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, float weight);
 
     ~StaticEdge();
 
-    long getWeight();
+    float getWeight();
 
-    void setWeight(long weight);
+    void setWeight(float weight);
 
     shared_ptr<StaticVertex> getFrom();
 
@@ -90,7 +90,7 @@ public:
 
 class StaticGraph {
     struct myEntry {
-        double density;
+        float density;
         shared_ptr<StaticVertex> value;
     };
 protected:
@@ -122,7 +122,7 @@ public:
 
     virtual std::map<std::string, shared_ptr<StaticVertex> > *getLabelVertMap();
 
-    virtual void add_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, long weight);
+    virtual void add_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, float weight);
 
     virtual void remove_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to);
 
@@ -137,7 +137,7 @@ public:
     //calculates shortest path between vertex u and v within given graph, using Dijkstra method
 
     virtual //returns shortest paths from source
-    std::unordered_map<string, long> *dijkstra(shared_ptr<StaticVertex> source);
+    std::unordered_map<string, float> *dijkstra(shared_ptr<StaticVertex> source);
 
     virtual //returns transitive closure, executing dijkstra |V| times
     shared_ptr<TransitiveClosure> transitiveClosure();
@@ -180,7 +180,7 @@ public:
 
     virtual std::map<std::string, shared_ptr<StaticVertex> > *getLabelVertMap() override;
 
-    virtual void add_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, long weight) override;
+    virtual void add_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, float weight) override;
 
     virtual void remove_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to) override;
 
@@ -188,17 +188,17 @@ public:
 
     std::string toString() override;
 
-    virtual std::unordered_map<std::string, long> *dijkstra(shared_ptr<StaticVertex> source) override;
+    virtual std::unordered_map<std::string, float> *dijkstra(shared_ptr<StaticVertex> source) override;
 
     virtual shared_ptr<TransitiveClosure> transitiveClosure() override;
 
 /*
      * returns cost in edge (u,v)
-     * if there is no edge(u,v) return LONG_MAX
+     * if there is no edge(u,v) return float_MAX
      */
-    long costEdge(shared_ptr<StaticVertex> u, shared_ptr<StaticVertex> v);
+    float costEdge(shared_ptr<StaticVertex> u, shared_ptr<StaticVertex> v);
 
-    long costEdge(std::string u_name, std::string v_name);
+    float costEdge(std::string u_name, std::string v_name);
 
     //returns minimum cost between u and v, where v is in X
     StaticEdge *min_cost_edge(shared_ptr<StaticVertex> u, set<shared_ptr<StaticVertex>, classcomp> *X);
@@ -210,7 +210,7 @@ public:
  */
 class Tree : StaticGraph {
 private:
-    long totalWeight;
+    float totalWeight;
 public:
     Tree();
 
@@ -226,10 +226,10 @@ public:
 
     virtual std::map<std::string, shared_ptr<StaticVertex> > *getLabelVertMap() override;
 
-    virtual void add_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, long weight) override;
+    virtual void add_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, float weight) override;
 
     /*returns the created tree after adding new edge*/ //TODO: mistake here!!!!!!
-    Tree *addEdgeWithCopy(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, long weight);
+    Tree *addEdgeWithCopy(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to, float weight);
 
     virtual void remove_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to) override;
 
@@ -237,13 +237,13 @@ public:
 
     virtual std::string toString() override;
 
-    long getTotalWeight();
+    float getTotalWeight();
 
     /*division of total weight by covered terms from X*/
-    double getDensity(std::set<shared_ptr<StaticVertex>, classcomp> *X);
+    float getDensity(std::set<shared_ptr<StaticVertex>, classcomp> *X);
 
     /*calculates density of tree on set X if edge e would be added there*/
-    double getDensityWithEdge(set<shared_ptr<StaticVertex>, classcomp> *X, StaticEdge *e);
+    float getDensityWithEdge(set<shared_ptr<StaticVertex>, classcomp> *X, StaticEdge *e);
 
     static Tree *merge(Tree *t1, Tree *t2);
 };
