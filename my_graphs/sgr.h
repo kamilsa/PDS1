@@ -50,6 +50,7 @@ namespace std {
 class StaticVertex {
 private:
     std::string name;
+    unordered_map<string, StaticEdge*>* incidents;
 public:
     StaticVertex(std::string name);
 
@@ -61,6 +62,10 @@ public:
 
     void setName(std::string name);
 
+    //to store collection of incident out-coming edges
+    void add_to_incidents(StaticEdge* e);
+
+    StaticEdge* get_from_incidents(string str);
 };
 
 class StaticEdge {

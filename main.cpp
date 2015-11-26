@@ -15,14 +15,18 @@ void temp_graph_test();
 
 void boost_test();
 
-void set_test();
+void set_test(set<int> a);
 
 void enron_test();
 
 int main() {
 
-    enron_test();
-//    set_test();
+//    enron_test();
+    set<int> s;
+    s.insert(1);
+    s.insert(2);
+    set_test(s);
+    cout << s.size();
     return 0;
     auto start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < 1; i++) {
@@ -102,10 +106,8 @@ void temp_graph_test() {
     delete wmst;
 }
 
-void set_test() {
-    float a1 = numeric_limits<float>::infinity();
-    float a2 = numeric_limits<float>::infinity();
-    cout << a1 + a2;
+void set_test(set<int> a) {
+    a.erase(1);
     return;
 
     StaticVertex* st1 = new StaticVertex("1");
@@ -123,7 +125,7 @@ void enron_test() {
 
     cout << "Reading dataset started.." << endl;
     auto start = std::chrono::high_resolution_clock::now();
-    string filename = "./dataset/enron/test.enron";
+    string filename = "./dataset/enron/85_187.enron";
     shared_ptr<enron_parser> ep(new enron_parser(filename));
     shared_ptr<TempGraph> tg(ep->getTG());
     auto finish = std::chrono::high_resolution_clock::now();

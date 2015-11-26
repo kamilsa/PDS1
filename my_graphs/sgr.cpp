@@ -28,13 +28,16 @@ bool equal_to<shared_ptr<StaticVertex>>::operator()(const shared_ptr<StaticVerte
 /*********************************************/
 StaticVertex::StaticVertex(std::string name) {
     this->name = name;
+    incidents = new unordered_map<string, StaticEdge*>();
 }
 
 StaticVertex::StaticVertex(shared_ptr<StaticVertex> v) {
     this->name = v->name;
+    incidents = new unordered_map<string, StaticEdge*>();
 }
 
 StaticVertex::~StaticVertex() {
+    delete incidents;
 }
 
 std::string StaticVertex::getName() const {
@@ -43,6 +46,14 @@ std::string StaticVertex::getName() const {
 
 void StaticVertex::setName(std::string name) {
     StaticVertex::name = name;
+}
+
+void StaticVertex::add_to_incidents(StaticEdge *e) {
+    (*incidents)[e->getTo()->getName()] = e;
+}
+
+StaticEdge *StaticVertex::get_from_incidents(string str) {
+    return (*incidents)[str];
 }
 
 shared_ptr<StaticVertex>StaticEdge::getFrom() {
@@ -158,12 +169,14 @@ void StaticGraph::add_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVerte
     if ((*adj_list)[from->getName()] == 0x00) {
         (*adj_list)[from->getName()] = new std::vector<StaticEdge *>();
         (*labelVert)[from->getName()] = from;
+        from->add_to_incidents(new StaticEdge(from, from, 0));
     }
     if ((*adj_list)[to->getName()] == 0x00) {
         (*adj_list)[to->getName()] = new std::vector<StaticEdge *>();
         (*labelVert)[to->getName()] = to;
     }
     StaticEdge *edge = new StaticEdge(from, to, weight);
+    from->add_to_incidents(edge); // add to collection of incident vertices of from
     std::vector<StaticEdge *> *temp = (*adj_list)[from->getName()];
     temp->insert(temp->end(), edge);
 }
@@ -173,15 +186,16 @@ void StaticGraph::remove_edge(shared_ptr<StaticVertex> from, shared_ptr<StaticVe
 }
 
 StaticEdge *StaticGraph::hasEdge(shared_ptr<StaticVertex> from, shared_ptr<StaticVertex> to) {
-    auto list = (*adj_list)[from->getName()];
-    if (list == nullptr) return nullptr;
-    for (int i = 0; i < list->size(); i++) {
-        StaticEdge *e = (*list)[i];
-        if (e->getTo()->getName() == to->getName()) {
-            return e;
-        }
-    }
-    return nullptr;
+//    auto list = (*adj_list)[from->getName()];
+//    if (list == nullptr) return nullptr;
+//    for (int i = 0; i < list->size(); i++) {
+//        StaticEdge *e = (*list)[i];
+//        if (e->getTo()->getName() == to->getName()) {
+//            return e;
+//        }
+//    }
+//    return nullptr;
+    return from->get_from_incidents(to->getName());
 }
 
 set<shared_ptr<StaticVertex>, classcomp> *StaticGraph::get_terms() {
@@ -237,15 +251,14 @@ std::unordered_map<string, float> *StaticGraph::dijkstra(shared_ptr<StaticVertex
             alt = (*dist)[u->getName()] + e->getWeight();
             if (alt < (*dist)[v->getName()]) {
                 (*dist)[v->getName()] = alt;
-//                (*prev)[v->getName()] = u;
             }
         }
     }
 
     //display the shortest paths:
 //    std::cout << "Shortest paths from " << source->getName() << ": " << std::endl;
-//    for (shared_ptr<StaticVertex>v : *vertSet) {
-//        std::cout << v->getName() << ": " << (*dist)[v] << std::endl;
+//    for (shared_ptr<StaticVertex> v : *vertSet) {
+//        std::cout << v->getName() << ": " << (*dist)[v->getName()] << std::endl;
 //    }
 
     delete q;
@@ -319,8 +332,11 @@ Tree *StaticGraph::alg3(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
             tree = Tree::merge(tree, treeBest); // TODO costly
             std::set<shared_ptr<StaticVertex>, classcomp> *intersect = vert_intersect(X, treeBest->getVertSet());
             k -= intersect->size();
+            delete intersect;
             cout << "k = " << k << endl;
-            X = vert_minus(X, treeBest->getVertSet());
+            auto tmp = vert_minus(X, treeBest->getVertSet());
+            delete X;
+            tmp = X;
         }
     }
     return tree;
@@ -362,8 +378,11 @@ Tree *StaticGraph::alg4(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
             tree = Tree::merge(tree, treeBest);
             std::set<shared_ptr<StaticVertex>, classcomp> *intersect = vert_intersect(X, treeBest->getVertSet());
             k -= intersect->size();
+            delete intersect;
             cout << "k = " << k << endl;
-            X = vert_minus(X, treeBest->getVertSet());
+            auto tmp = vert_minus(X, treeBest->getVertSet());
+            delete X;
+            X = tmp;
         }
     }
     return tree;
@@ -421,6 +440,7 @@ Tree *StaticGraph::alg5(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
             treeC = Tree::merge(treeC, treeBest);
             std::set<shared_ptr<StaticVertex>, classcomp> *intersect = vert_intersect(X, treeBest->getVertSet());
             k -= intersect->size();
+            delete intersect;
             X = vert_minus(X, treeBest->getVertSet());
 
             std::set<shared_ptr<StaticVertex>, classcomp> *oldX = new std::set<shared_ptr<StaticVertex>, classcomp>(
@@ -488,8 +508,8 @@ Tree *StaticGraph::alg6(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
             if (min_edge != nullptr)
                 tree->add_edge(root, min_edge->getTo(), min_edge->getWeight());
             k--;
-            std::set<shared_ptr<StaticVertex>, classcomp> *oldX = new std::set<shared_ptr<StaticVertex>, classcomp>(
-                    X->begin(), X->end());
+//            std::set<shared_ptr<StaticVertex>, classcomp> *oldX = new std::set<shared_ptr<StaticVertex>, classcomp>(
+//                    X->begin(), X->end());
             if (min_edge != nullptr)
                 X->erase(min_edge->getTo());
         }
@@ -498,6 +518,7 @@ Tree *StaticGraph::alg6(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
         float bestDen;
         bool first = true;
         std::vector<myEntry *> *sorted = new std::vector<myEntry *>();
+        float prev = -1;
         while (k > 0) {
             Tree *treeBest = new Tree();
             bestDen = numeric_limits<float>::infinity();
@@ -506,7 +527,8 @@ Tree *StaticGraph::alg6(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
             if (first) {
                 for (shared_ptr<StaticVertex> v : *vertSet) {
                     StaticEdge *e = tr_cl->hasEdge(root, v); ///!! If there is no such e could be problems
-                    if (e == nullptr) continue;
+//                    if (e == nullptr) continue;
+                    if (e == nullptr) e = new StaticEdge(root, v, numeric_limits<float>::infinity());
                     Tree *treeP = alg7(tr_cl, i - 1, k, v,
                                        new std::set<shared_ptr<StaticVertex>, classcomp>(X->begin(), X->end()),
                                        e);
@@ -531,6 +553,7 @@ Tree *StaticGraph::alg6(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
                     shared_ptr<StaticVertex> v = entry->value;
                     if (entry->density < t_best) {
                         StaticEdge *e = tr_cl->hasEdge(root, v);
+                        if (e == nullptr) e = new StaticEdge(root, v, numeric_limits<float>::infinity());
                         Tree *treeP = alg7(tr_cl, i - 1, k, v,
                                            new std::set<shared_ptr<StaticVertex>, classcomp>(X->begin(), X->end()),
                                            e);
@@ -560,8 +583,15 @@ Tree *StaticGraph::alg6(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
             tree = Tree::merge(tree, treeBest);
             std::set<shared_ptr<StaticVertex>, classcomp> *intersect = vert_intersect(X, treeBest->getVertSet());
             k -= intersect->size();
+            delete intersect;
             cout << "k = " << k << endl;
-            X = vert_minus(X, treeBest->getVertSet());
+            auto tmp = vert_minus(X, treeBest->getVertSet());
+            delete X;
+            X = tmp;
+            if (prev == k)
+                break;
+            else
+                prev = k;
         }
     }
     return tree;
@@ -580,29 +610,27 @@ Tree *StaticGraph::alg7(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
             if (min_edge != nullptr)
                 treeC->add_edge(root, min_edge->getTo(), min_edge->getWeight());
             k--;
-            std::set<shared_ptr<StaticVertex>, classcomp> *oldX = new std::set<shared_ptr<StaticVertex>, classcomp>(
-                    X->begin(), X->end());
-            if (min_edge != nullptr)
-                X->erase(min_edge->getTo());
+//            std::set<shared_ptr<StaticVertex>, classcomp> *oldX = new std::set<shared_ptr<StaticVertex>, classcomp>(
+//                    X->begin(), X->end());
 
             if (first1) {
                 tree = treeC;
                 first1 = false;
             }
             else {
-                //                if (tree->addEdgeWithCopy(e->getFrom(), e->getTo(), e->getWeight())->getDensity(oldX) >
-//                    treeC->addEdgeWithCopy(e->getFrom(), e->getTo(), e->getWeight())->getDensity(oldX)) {
-//                    tree = treeC;
-//                } mistaken!
-                if (tree->getDensityWithEdge(oldX, e) > treeC->getDensityWithEdge(oldX, e)) {
+                if (tree->getDensityWithEdge(X, e) > treeC->getDensityWithEdge(X, e)) {
+                    delete tree;
                     tree = treeC;
                 }
             }
+            if (min_edge != nullptr)
+                X->erase(min_edge->getTo());
         }
     }
     else {
         float bestDen;
         std::vector<myEntry *> *sorted = new std::vector<myEntry *>();
+        float prev = -1;
         while (k > 0) {
             Tree *treeBest = new Tree();
             bestDen = numeric_limits<float>::infinity();
@@ -658,10 +686,11 @@ Tree *StaticGraph::alg7(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
             treeC = Tree::merge(treeC, treeBest);
             std::set<shared_ptr<StaticVertex>, classcomp> *intersect = vert_intersect(X, treeBest->getVertSet());
             k -= intersect->size();
+            delete intersect;
             X = vert_minus(X, treeBest->getVertSet());
 
-            std::set<shared_ptr<StaticVertex>, classcomp> *oldX = new std::set<shared_ptr<StaticVertex>, classcomp>(
-                    X->begin(), X->end());
+//            std::set<shared_ptr<StaticVertex>, classcomp> *oldX = new std::set<shared_ptr<StaticVertex>, classcomp>(
+//                    X->begin(), X->end());
             if (first2) {
                 tree = treeC;
                 first2 = false;
@@ -671,11 +700,10 @@ Tree *StaticGraph::alg7(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
 //                    treeC->addEdgeWithCopy(e->getFrom(), e->getTo(), e->getWeight())->getDensity(oldX)) {
 //                    tree = treeC;
 //                } mistaken!
-                if (tree->getDensityWithEdge(oldX, e) > treeC->getDensityWithEdge(oldX, e)) {
+                if (tree->getDensityWithEdge(X, e) > treeC->getDensityWithEdge(X, e)) {
                     tree = treeC;
                 }
             }
-            delete (oldX);
         }
     }
     return tree;
@@ -685,26 +713,30 @@ Tree *StaticGraph::alg7(shared_ptr<TransitiveClosure> tr_cl, int i, int k, share
 /*********************************************/
 
 float TransitiveClosure::costEdge(shared_ptr<StaticVertex> u, shared_ptr<StaticVertex> v) {
-    auto vertList = (*adj_list)[u->getName()];
-    for (int i = 0; i < vertList->size(); i++) {
-        StaticEdge *edge = (*vertList)[i];
-        if (edge->getTo()->getName() == v->getName()) {
-            return edge->getWeight();
-        }
-    }
-    return numeric_limits<float>::infinity();
+//    auto vertList = (*adj_list)[u->getName()];
+//    for (int i = 0; i < vertList->size(); i++) {
+//        StaticEdge *edge = (*vertList)[i];
+//        if (edge->getTo()->getName() == v->getName()) {
+//            return edge->getWeight();
+//        }
+//    }
+    auto e = this->hasEdge(u, v);
+    if (e != nullptr)
+        return e->getWeight();
+    else
+        return numeric_limits<float>::infinity();
 }
 
-float TransitiveClosure::costEdge(std::string u_name, std::string v_name) {
-    auto vertList = (*adj_list)[u_name];
-    for (int i = 0; i < vertList->size(); i++) {
-        StaticEdge *edge = (*vertList)[i];
-        if (edge->getTo()->getName() == v_name) {
-            return edge->getWeight();
-        }
-    }
-    return numeric_limits<float>::infinity();
-}
+//float TransitiveClosure::costEdge(std::string u_name, std::string v_name) {
+//    auto vertList = (*adj_list)[u_name];
+//    for (int i = 0; i < vertList->size(); i++) {
+//        StaticEdge *edge = (*vertList)[i];
+//        if (edge->getTo()->getName() == v_name) {
+//            return edge->getWeight();
+//        }
+//    }
+//    return numeric_limits<float>::infinity();
+//}
 
 StaticEdge *TransitiveClosure::min_cost_edge(shared_ptr<StaticVertex> u, set<shared_ptr<StaticVertex>, classcomp> *X) {
     auto adj = (*adj_list)[u->getName()];
@@ -771,12 +803,14 @@ void TransitiveClosure::add_edge(shared_ptr<StaticVertex> from, shared_ptr<Stati
     if ((*adj_list)[from->getName()] == 0x00) {
         (*adj_list)[from->getName()] = new std::vector<StaticEdge *>();
         (*labelVert)[from->getName()] = from;
+        from->add_to_incidents(new StaticEdge(from, from, 0));
     }
     if ((*adj_list)[to->getName()] == 0x00) {
         (*adj_list)[to->getName()] = new std::vector<StaticEdge *>();
         (*labelVert)[to->getName()] = to;
     }
     StaticEdge *edge = new StaticEdge(from, to, weight);
+    from->add_to_incidents(edge); // add to collection of incident vertices of from
     std::vector<StaticEdge *> *temp = (*adj_list)[from->getName()];
     if (temp->empty())
         temp->insert(temp->end(), edge);
@@ -878,13 +912,8 @@ float Tree::getTotalWeight() {
 
 float Tree::getDensity(std::set<shared_ptr<StaticVertex>, classcomp> *X) {
     int covered = 0;
-//    for (shared_ptr<StaticVertex> v: *X) {
-//        if (vertSet->find(v) != vertSet->end())
-//            covered++;
-//    }
-    //covered is the same with the size of intersection X and vertSet
     covered = (int) vert_intersect(X, vertSet)->size();
-    return (float) getTotalWeight() / covered;
+    return getTotalWeight() / covered;
 }
 
 float Tree::getDensityWithEdge(set<shared_ptr<StaticVertex>, classcomp> *X, StaticEdge *e) {
@@ -896,7 +925,7 @@ float Tree::getDensityWithEdge(set<shared_ptr<StaticVertex>, classcomp> *X, Stat
     if (vertSet->find(e->getFrom()) == vertSet->end() && X->find(e->getFrom()) != X->end()) {
         covered++;
     }
-    return (float) totalWeight / covered;
+    return totalWeight / covered;
 }
 
 Tree *Tree::merge(Tree *t1, Tree *t2) {
